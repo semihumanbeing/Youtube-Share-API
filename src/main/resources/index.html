@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Chat</title>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+</head>
+<body>
+
+<script>
+  var socket = new SockJS('http://127.0.0.1:8080/stomp'); // WebSocket 서버 주소
+  var stompClient = Stomp.over(socket)
+  stompClient.connect({}, function (frame) {
+    console.log(frame)
+    stompClient.subscribe('/sub/chat/room/1234', function (response) {
+      var message = JSON.parse(response.body);
+      console.log('Received message: ', message);
+      displayMessage(message.content); // content를 사용
+    });
+  }, function (error) {
+    console.error('Error during connection: ', error);
+  });
+
+  // Function to send a message to the server
+  function sendMessage() {
+    var message = {
+      roomId: "1234",
+      sender: "hee",
+      message: "Hello, Server!"
+    };
+    stompClient.send("/pub/chat/message", {}, JSON.stringify(message));
+  }
+  // Function to display a message on the page
+  function displayMessage(message) {
+    var messageContainer = document.getElementById('message-container');
+    var newMessage = document.createElement('div');
+    newMessage.textContent = message;
+    messageContainer.appendChild(newMessage);
+  }
+</script>
+<div id="message-container"></div>
+<button onclick="sendMessage()">Send Message</button>
+
+</body>
+</html>
