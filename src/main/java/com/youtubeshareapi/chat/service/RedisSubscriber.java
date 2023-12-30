@@ -1,21 +1,25 @@
 package com.youtubeshareapi.chat.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RedisMessageListenerService implements MessageListener {
+public class RedisSubscriber implements MessageListener {
 
   private final RedisTemplate<String, Object> redisTemplate;
   private final ObjectMapper objectMapper;
@@ -24,7 +28,7 @@ public class RedisMessageListenerService implements MessageListener {
   private final String topic = "/sub/chat/room/";
 
   // Websocket에서 redis로 메시지를 보내면 MessageListener가 보고있다가 Websocket 구독자들에게 보내준다
-  // TODO 왜 이부분이 실행을 안할까?????
+
   @Override
   public void onMessage(Message message, byte[] pattern) {
     String messageToPublish = redisTemplate.getStringSerializer().deserialize(message.getBody());
@@ -40,4 +44,7 @@ public class RedisMessageListenerService implements MessageListener {
       log.error(e.getMessage());
     }
   }
+
+
+
 }

@@ -19,7 +19,7 @@
     stompClient.subscribe('/sub/chat/room/1234', function (response) {
       var message = JSON.parse(response.body);
       console.log('Received message: ', message);
-      displayMessage(message.content); // content를 사용
+      displayMessage(message.message); // content를 사용
     });
   }, function (error) {
     console.error('Error during connection: ', error);
@@ -42,8 +42,8 @@
     messageContainer.appendChild(newMessage);
   }
 </script>
-<div id="message-container"></div>
-<button onclick="sendMessage()">Send Message</button>
 
+<button onclick="sendMessage()">Send Message</button>
+<div id="message-container"></div>
 </body>
 </html>
