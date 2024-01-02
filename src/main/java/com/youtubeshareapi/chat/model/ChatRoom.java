@@ -1,23 +1,19 @@
 package com.youtubeshareapi.chat.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
-@Data
-public class ChatRoom implements Serializable {
+import lombok.NoArgsConstructor;
 
-    @Serial
-    private static final long serialVersionUID = 6494678977089006639L;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChatRoom {
 
     private String roomId;
     private String name;
 
-    public static ChatRoom create(String name) {
-        ChatRoom chatRoom = new ChatRoom();
-        chatRoom.roomId = UUID.randomUUID().toString();
-        chatRoom.name = name;
-        return chatRoom;
-    }
 }

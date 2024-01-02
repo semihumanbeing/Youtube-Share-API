@@ -19,13 +19,12 @@
     stompClient.subscribe('/sub/chat/room/1234', function (response) {
       var message = JSON.parse(response.body);
       console.log('Received message: ', message);
-      displayMessage(message.message); // content를 사용
+      displayMessage(message.message);
     });
   }, function (error) {
     console.error('Error during connection: ', error);
   });
 
-  // Function to send a message to the server
   function sendMessage() {
     var message = {
       roomId: "1234",

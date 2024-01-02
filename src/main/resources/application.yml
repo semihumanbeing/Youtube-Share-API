@@ -3,3 +3,8 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
+
+kakao:
+  client-id: ${KakaoClientId:00e5dcdfa7d897b7159fc38733424aa5}
+  client-secret: ${KakaoSecret:}
+  redirect-url: http://localhost:8080/kakao/oauth
