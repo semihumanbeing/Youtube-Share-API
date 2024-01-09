@@ -3,8 +3,24 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/youtube_share?characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${DBUser:}
+    password: ${DBPwd:}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
 
 kakao:
   client-id: ${KakaoClientId:00e5dcdfa7d897b7159fc38733424aa5}
   client-secret: ${KakaoSecret:}
   redirect-url: http://localhost:8080/kakao/oauth
+
+jwt:
+  secret: 4c4d328d2fe052962698ec4ed63afbb7c9171629b9502498d9faabe19b29e0a3
