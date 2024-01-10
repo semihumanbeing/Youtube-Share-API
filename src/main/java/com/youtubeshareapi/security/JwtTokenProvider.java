@@ -34,18 +34,14 @@ public class JwtTokenProvider {
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
 
-  public Token generateToken(Authentication authentication) {
-    // 권한 가져오기
-    String authorities = authentication.getAuthorities().stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.joining(","));
-
+  public Token generateToken(com.youtubeshareapi.user.entity.User user) {
+    String authorities = user.getUserRole();
     long now = (new Date()).getTime();
 
     // Access Token 생성
     Date accessTokenExpiresIn = new Date(now + 86400000);
     String accessToken = Jwts.builder()
-        .setSubject(authentication.getName())
+        .setSubject(user.getUserId().toString())
         .claim("auth", authorities)
         .setExpiration(accessTokenExpiresIn)
         .signWith(key, SignatureAlgorithm.HS256)
@@ -58,6 +54,7 @@ public class JwtTokenProvider {
         .compact();
 
     return Token.builder()
+        .user(user)
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .build();

@@ -9,7 +9,8 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -19,11 +20,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
+  private final UserDetailsService userService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
     return httpSecurity.authorizeHttpRequests(auth ->
-        auth.requestMatchers("/api/login").permitAll()
+        auth.requestMatchers("/api/user/login", "/api/user/register").permitAll()
             .requestMatchers("/api/test").hasRole("USER")
             .anyRequest().authenticated())
         .formLogin(FormLoginConfigurer::disable)
@@ -37,7 +39,7 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     // BCrypt Encoder 사용
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    return new BCryptPasswordEncoder();
   }
 
 

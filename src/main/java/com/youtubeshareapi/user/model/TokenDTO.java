@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenDTO {
-  private Long tokenId;
-  private User user;
+  private Long userId;
   private String accessToken;
   private String refreshToken;
   private Timestamp createdAt;

@@ -11,7 +11,7 @@ public interface UserService {
 
   void register(UserDTO userDTO);
   void updateUser(UserDTO userDTO);
-  UserDTO findUserByUserId(UUID userId);
+  UserDTO findUserByUserId(Long userId);
   UserDTO findUserByEmail(String email);
   boolean existsByEmail(String email);
 
