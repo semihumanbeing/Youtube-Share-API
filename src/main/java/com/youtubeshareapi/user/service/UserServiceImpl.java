@@ -9,15 +9,8 @@ import com.youtubeshareapi.user.entity.UserRepository;
 import com.youtubeshareapi.user.model.TokenDTO;
 import com.youtubeshareapi.user.model.UserDTO;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -53,6 +46,7 @@ public class UserServiceImpl implements UserService {
         .email(userDTO.getEmail())
         .username(userDTO.getUsername())
         .password(userDTO.getPassword())
+        .userRole("USER")
         .build();
     userRepository.save(user);
   }

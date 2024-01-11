@@ -1,5 +1,6 @@
 package com.youtubeshareapi.security;
 
+import com.youtubeshareapi.common.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -20,28 +21,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    String token = "";
-    Cookie[] cookies = ((HttpServletRequest) request).getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if ("jwt".equals(cookie.getName())) {
-          token = cookie.getValue();
-        }
-      }
-    }
+    String token = CookieUtil.resolveToken((HttpServletRequest) request);
 
-    if (token != null && !token.isEmpty() && jwtTokenProvider.validateToken(token)) {
+    if (!token.isEmpty() && jwtTokenProvider.validateToken(token)) {
       Authentication authentication = jwtTokenProvider.getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }
     chain.doFilter(request, response);
   }
 
-  private String resolveToken(HttpServletRequest request) {
-    String bearerToken = request.getHeader("Authorization");
-    if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-      return bearerToken.substring(7);
-    }
-    return null;
-  }
+
 }

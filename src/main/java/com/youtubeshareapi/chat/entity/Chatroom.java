@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Builder
@@ -35,10 +36,11 @@ public class Chatroom {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
-  @Column(name = "chatroom_name")
+  @Column(name = "chatroom_name", nullable = false)
   private String chatroomName;
   @Column(name = "chatroom_password")
   private String chatroomPassword;
+  @CreationTimestamp
   @Column(name = "created_at")
   @Temporal(TemporalType.TIMESTAMP)
   private Timestamp createdAt;

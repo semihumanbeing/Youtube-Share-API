@@ -23,6 +23,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,7 +50,9 @@ public class User implements UserDetails, Serializable {
   @Column(name = "email", nullable = false, unique = true)
   private String email;
   @Column(name = "user_role")
+  @ColumnDefault("USER")
   private String userRole;
+  @CreationTimestamp
   @Column(name = "created_at")
   @Temporal(TemporalType.TIMESTAMP)
   private Timestamp createdAt;
