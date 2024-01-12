@@ -1,9 +1,11 @@
 package com.youtubeshareapi.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.youtubeshareapi.chat.entity.Chatroom;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,12 +19,14 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,8 +64,8 @@ public class User implements UserDetails, Serializable {
   @Temporal(TemporalType.TIMESTAMP)
   private Timestamp updatedAt;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Chatroom> chatrooms;
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<Chatroom> chatrooms;
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Token token;
 
@@ -91,4 +95,5 @@ public class User implements UserDetails, Serializable {
   public boolean isEnabled() {
     return true;
   }
+
 }

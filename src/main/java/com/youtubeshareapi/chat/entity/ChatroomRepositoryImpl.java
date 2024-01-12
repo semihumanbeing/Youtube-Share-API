@@ -1,6 +1,5 @@
 package com.youtubeshareapi.chat.entity;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.util.List;

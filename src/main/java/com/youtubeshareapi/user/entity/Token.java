@@ -1,5 +1,6 @@
 package com.youtubeshareapi.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +33,7 @@ public class Token {
   private Long tokenId;
   @OneToOne
   @JoinColumn(name = "user_id")
+  @JsonIgnore
   private User user;
   @Column(name = "access_token")
   private String accessToken;

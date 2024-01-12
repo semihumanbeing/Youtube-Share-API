@@ -1,5 +1,6 @@
 package com.youtubeshareapi.chat.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.youtubeshareapi.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

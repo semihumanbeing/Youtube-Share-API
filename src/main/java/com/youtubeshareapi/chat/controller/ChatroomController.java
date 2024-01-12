@@ -26,11 +26,15 @@ public class ChatroomController {
   private final JwtTokenProvider tokenProvider;
   private final ChatroomService chatroomService;
 
-    // 로그인이 되면 리퀘스트에서 토큰을 가져와서 유저아이디를 추출
-    // 유저아이디, 방 이름을 통해 채팅방을 DB에 저장
-    // 프론트에 채팅방에 대한 정보를 전달
+  /**
+   * 채팅방 제작
+   * @param chatroomDTO
+   * @param request
+   * @return
+   */
   @PostMapping("")
-  public ResponseEntity<?> createChatroom(@Valid @RequestBody ChatroomDTO chatroomDTO, HttpServletRequest request) {
+  public ResponseEntity<?> createChatroom(@Valid @RequestBody ChatroomDTO chatroomDTO,
+      HttpServletRequest request) {
     String token = CookieUtil.resolveToken(request);
     Long userId = getUserIdFromToken(token);
     chatroomDTO.setUser(User.builder().userId(userId).build());
@@ -43,6 +47,11 @@ public class ChatroomController {
             .build());
   }
 
+  /**
+   * 유저가 소유한 채팅방 목록 조회
+   * @param request
+   * @return
+   */
   @GetMapping("")
   public ResponseEntity<?> getChatroomsOfUser(HttpServletRequest request) {
     String token = CookieUtil.resolveToken(request);
@@ -55,6 +64,7 @@ public class ChatroomController {
             .timestamp(new Timestamp(System.currentTimeMillis()))
             .build());
   }
+
 
   private Long getUserIdFromToken(String token){
     return Long.parseLong(tokenProvider.parseClaims(token).getSubject());

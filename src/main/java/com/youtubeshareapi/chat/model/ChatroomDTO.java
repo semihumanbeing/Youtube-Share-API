@@ -1,5 +1,6 @@
 package com.youtubeshareapi.chat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.youtubeshareapi.chat.entity.Chatroom;
 import com.youtubeshareapi.user.entity.User;
 import jakarta.validation.constraints.NotEmpty;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 public class ChatroomDTO {
 
     private Long chatroomId;
+    @JsonIgnore
     private User user;
     @NotEmpty(message = "chatroom name cannot be empty")
     private String chatroomName;
