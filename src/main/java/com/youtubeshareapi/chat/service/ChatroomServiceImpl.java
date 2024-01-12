@@ -4,7 +4,6 @@ import com.youtubeshareapi.chat.entity.Chatroom;
 import com.youtubeshareapi.chat.entity.ChatroomRepository;
 import com.youtubeshareapi.chat.model.ChatroomDTO;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +15,24 @@ public class ChatroomServiceImpl implements ChatroomService{
   @Override
   public List<ChatroomDTO> findChatroomsOfUser(Long userId) {
     return chatroomRepository.findChatroomsByUserId(userId)
-        .stream().map(ChatroomDTO::toDTO).toList();
+        .stream().map(Chatroom::toDTO).toList();
   }
 
   @Override
   public ChatroomDTO saveChatroom(ChatroomDTO chatroomDTO) {
     Chatroom savedChatroom = chatroomRepository.save(chatroomDTO.toEntity(chatroomDTO));
-    return ChatroomDTO.toDTO(savedChatroom);
+    return Chatroom.toDTO(savedChatroom);
+  }
+
+  @Override
+  public int countChatroomByUserId(Long userId) {
+    return chatroomRepository.countChatroomByUserId(userId);
+  }
+
+  @Override
+  public ChatroomDTO findByChatroomId(Long userId, Long chatroomId) {
+    Chatroom chatroom = chatroomRepository
+        .findByChatroomId(chatroomId);
+    return Chatroom.toDTO(chatroom);
   }
 }

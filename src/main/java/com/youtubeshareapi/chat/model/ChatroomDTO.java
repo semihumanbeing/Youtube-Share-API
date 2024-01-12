@@ -37,15 +37,5 @@ public class ChatroomDTO {
             .build();
     }
 
-    public static ChatroomDTO toDTO(Chatroom chatroom) {
-        return ChatroomDTO.builder()
-            .chatroomId(chatroom.getChatroomId())
-            .user(chatroom.getUser())
-            .chatroomName(chatroom.getChatroomName())
-            .chatroomPassword(chatroom.getChatroomPassword())
-            .createdAt(chatroom.getCreatedAt())
-            .updatedAt(chatroom.getUpdatedAt())
-            .build();
-    }
 
 }

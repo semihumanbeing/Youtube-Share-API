@@ -20,4 +20,18 @@ public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
         .orderBy(chatroom.chatroomId.desc())
         .fetch();
   }
+  @Override
+  public Chatroom findByChatroomId(Long chatroomId) {
+    return query.select(chatroom)
+        .from(chatroom)
+        .where(chatroom.chatroomId.eq(chatroomId))
+        .fetchOne();
+  }
+  @Override
+  public int countChatroomByUserId(Long userId) {
+    return Math.toIntExact(query.select(chatroom.count())
+        .from(chatroom)
+        .where(chatroom.user.userId.eq(userId))
+        .fetchFirst());
+  }
 }

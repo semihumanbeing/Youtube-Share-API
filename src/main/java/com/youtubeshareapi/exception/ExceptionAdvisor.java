@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionAdvisor {
 
+  @ExceptionHandler(ChatroomLimitException.class)
+  public ResponseEntity<?> handleDeviceException(ChatroomLimitException exception) {
+    return setResponseFromException(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage());
+  }
+
   @ExceptionHandler(AuthException.class)
   public ResponseEntity<?> handleDeviceException(AuthException exception) {
     return setResponseFromException(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage());

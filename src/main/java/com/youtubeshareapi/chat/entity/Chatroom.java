@@ -1,6 +1,7 @@
 package com.youtubeshareapi.chat.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.youtubeshareapi.chat.model.ChatroomDTO;
 import com.youtubeshareapi.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Getter
 @Builder
@@ -45,8 +47,19 @@ public class Chatroom {
   @Column(name = "created_at")
   @Temporal(TemporalType.TIMESTAMP)
   private Timestamp createdAt;
+  @UpdateTimestamp
   @Column(name = "updated_at")
   @Temporal(TemporalType.TIMESTAMP)
   private Timestamp updatedAt;
 
+  public static ChatroomDTO toDTO(Chatroom chatroom) {
+    return ChatroomDTO.builder()
+        .chatroomId(chatroom.getChatroomId())
+        .user(chatroom.getUser())
+        .chatroomName(chatroom.getChatroomName())
+        .chatroomPassword(chatroom.getChatroomPassword())
+        .createdAt(chatroom.getCreatedAt())
+        .updatedAt(chatroom.getUpdatedAt())
+        .build();
+  }
 }

@@ -17,7 +17,7 @@
   stompClient.connect({}, function (frame) {
     console.log(frame)
     stompClient.subscribe('/sub/chat/room/1234', function (response) {
-      var message = JSON.parse(response.body);
+      const message = JSON.parse(response.body);
       console.log('Received message: ', message);
       displayMessage(message.message);
     });
@@ -28,12 +28,11 @@
   function sendMessage() {
     var message = {
       roomId: "1234",
-      sender: "hee",
+      username: "hee",
       message: "Hello, Server!"
     };
     stompClient.send("/pub/chat/message", {}, JSON.stringify(message));
   }
-  // Function to display a message on the page
   function displayMessage(message) {
     var messageContainer = document.getElementById('message-container');
     var newMessage = document.createElement('div');

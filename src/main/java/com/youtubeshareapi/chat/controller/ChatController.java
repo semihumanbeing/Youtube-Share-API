@@ -21,15 +21,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Slf4j
-@Controller("/chat")
+@Controller
 @RequiredArgsConstructor
 public class ChatController {
 
   private final RedisPublisher redisPublisher;
   // Websocket에서 들어온 메시지를 redis로 보내준다
-  @MessageMapping("/message")
+  @MessageMapping("/chat/message")
   public void message(ChatMessage msg){
     log.info("message: {}", msg);
     redisPublisher.publish(new ChannelTopic(msg.getRoomId()), msg);
