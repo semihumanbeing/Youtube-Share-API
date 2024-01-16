@@ -11,6 +11,8 @@ import com.youtubeshareapi.user.model.UserDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,12 +23,15 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final TokenRepository tokenRepository;
   private final JwtTokenProvider jwtTokenProvider;
+  private final PasswordEncoder passwordEncoder;
 
   @Transactional
   @Override
   public TokenDTO login(String email, String password) {
-    User user = userRepository.findByEmailAndPassword(email, password)
-        .orElseThrow(()-> new AuthException("wrong password"));
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(()-> new AuthException("cannot find user"));
+    boolean loginSucceed = passwordEncoder.matches(password, user.getPassword());
+    if(!loginSucceed) throw new AuthException("password is wrong");
 
     Token token = user.getToken();
     if(token == null){
@@ -42,10 +47,14 @@ public class UserServiceImpl implements UserService {
   }
   @Override
   public void register(UserDTO userDTO) {
+    if(userRepository.existsByEmail(userDTO.getEmail())){
+      throw new AuthException("email already exists");
+    }
+
     User user = User.builder()
         .email(userDTO.getEmail())
         .username(userDTO.getUsername())
-        .password(userDTO.getPassword())
+        .password(passwordEncoder.encode(userDTO.getPassword()))
         .userRole("USER")
         .build();
     userRepository.save(user);

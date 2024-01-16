@@ -11,4 +11,6 @@ public interface ChatroomService {
   int countChatroomByUserId(Long userId);
 
   ChatroomDTO findByChatroomId(Long userId, Long chatroomId);
+
+  void deleteChatroomByChatroomId(Long chatroomId);
 }

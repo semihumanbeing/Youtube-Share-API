@@ -124,7 +124,8 @@ public class ChatroomController {
   @DeleteMapping("/{chatroomId}")
   public ResponseEntity<?> deleteChatroom(HttpServletRequest request,
       @PathVariable Long chatroomId){
-
+    // Todo 방을 만든 사람만 삭제할수 있음
+    chatroomService.deleteChatroomByChatroomId(chatroomId);
 
     return null;
   }

@@ -35,4 +35,9 @@ public class ChatroomServiceImpl implements ChatroomService{
         .findByChatroomId(chatroomId);
     return Chatroom.toDTO(chatroom);
   }
+
+  @Override
+  public void deleteChatroomByChatroomId(Long chatroomId) {
+    chatroomRepository.deleteById(chatroomId);
+  }
 }
