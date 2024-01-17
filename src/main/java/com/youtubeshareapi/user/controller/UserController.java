@@ -3,6 +3,7 @@ package com.youtubeshareapi.user.controller;
 import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.exception.AuthException;
 import com.youtubeshareapi.user.model.LoginRequest;
+import com.youtubeshareapi.user.model.LoginResponse;
 import com.youtubeshareapi.user.model.RegisterRequest;
 import com.youtubeshareapi.user.model.TokenDTO;
 import com.youtubeshareapi.user.model.UserDTO;
@@ -45,7 +46,12 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK)
         .body(ResponseDTO.builder()
             .timestamp(new Timestamp(System.currentTimeMillis()))
-            .data(tokenDTO)
+            .data(LoginResponse.builder()
+                .username(tokenDTO.getUsername())
+                .accessToken(tokenDTO.getAccessToken())
+                .refreshToken(tokenDTO.getRefreshToken())
+                .createdAt(tokenDTO.getCreatedAt())
+                .build())
             .build());
   }
 

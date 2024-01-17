@@ -1,8 +1,5 @@
 package com.youtubeshareapi.user.model;
 
-import com.youtubeshareapi.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToOne;
 import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDTO {
-  private Long userId;
+public class LoginResponse {
   private String username;
   private String accessToken;
   private String refreshToken;
   private Timestamp createdAt;
-
 }

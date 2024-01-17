@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
     }
     return TokenDTO.builder()
         .userId(user.getUserId())
+        .username(user.getUsername())
         .accessToken(token.getAccessToken())
         .refreshToken(token.getRefreshToken())
         .createdAt(token.getCreatedAt())
