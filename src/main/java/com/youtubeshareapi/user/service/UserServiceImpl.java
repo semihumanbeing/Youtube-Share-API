@@ -98,4 +98,29 @@ public class UserServiceImpl implements UserService {
     return userRepository.existsByEmail(email);
   }
 
+  @Override
+  public TokenDTO refreshAccessToken(String refreshToken) {
+    Long userId = getUserIdFromToken(refreshToken);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new AuthException("cannot find user from refreshToken"));
+
+    Token token = tokenRepository.findByUserId(userId);
+    Token newToken = jwtTokenProvider.generateToken(user);
+
+    token.setAccessToken(newToken.getAccessToken());
+    token.setRefreshToken(newToken.getRefreshToken());
+
+    token = tokenRepository.save(token);
+
+    return TokenDTO.builder()
+        .userId(user.getUserId())
+        .username(user.getUsername())
+        .accessToken(token.getAccessToken())
+        .refreshToken(token.getRefreshToken())
+        .createdAt(token.getCreatedAt())
+        .build();
+  }
+  private Long getUserIdFromToken(String token){
+    return Long.parseLong(jwtTokenProvider.parseClaims(token).getSubject());
+  }
 }

@@ -4,6 +4,7 @@ import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.exception.AuthException;
 import com.youtubeshareapi.user.model.LoginRequest;
 import com.youtubeshareapi.user.model.LoginResponse;
+import com.youtubeshareapi.user.model.RefreshRequest;
 import com.youtubeshareapi.user.model.RegisterRequest;
 import com.youtubeshareapi.user.model.TokenDTO;
 import com.youtubeshareapi.user.model.UserDTO;
@@ -17,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -88,6 +91,16 @@ public class UserController {
         .body(ResponseDTO.builder()
             .timestamp(new Timestamp(System.currentTimeMillis()))
             .data(null)
+            .build());
+  }
+
+  @GetMapping("/refresh")
+  public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest refreshRequest) {
+    TokenDTO refreshTokenDTO = userService.refreshAccessToken(refreshRequest.getRefreshToken());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ResponseDTO.builder()
+            .data(refreshTokenDTO)
+            .timestamp(new Timestamp(System.currentTimeMillis()))
             .build());
   }
 }

@@ -36,20 +36,19 @@ public class JwtTokenProvider {
 
   public Token generateToken(com.youtubeshareapi.user.entity.User user) {
     String authorities = user.getUserRole();
-    long now = (new Date()).getTime();
+    long now = System.currentTimeMillis();
 
     // Access Token 생성
-    Date accessTokenExpiresIn = new Date(now + 86400000);
     String accessToken = Jwts.builder()
-        .setSubject(user.getUsername())
+        .setSubject(String.valueOf(user.getUserId()))
         .claim("auth", authorities)
-        .setExpiration(accessTokenExpiresIn)
+        .setExpiration(new Date(now + 86400000))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
 
     // Refresh Token 생성
     String refreshToken = Jwts.builder()
-        .setSubject(user.getUsername())
+        .setSubject(String.valueOf(user.getUserId()))
         .setExpiration(new Date(now + 86400000))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
@@ -91,6 +90,7 @@ public class JwtTokenProvider {
       log.info("Invalid JWT Token", e);
     } catch (ExpiredJwtException e) {
       log.info("Expired JWT Token", e);
+
     } catch (UnsupportedJwtException e) {
       log.info("Unsupported JWT Token", e);
     } catch (IllegalArgumentException e) {

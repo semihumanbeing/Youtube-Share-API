@@ -1,6 +1,7 @@
 package com.youtubeshareapi.exception;
 
 import com.youtubeshareapi.common.ResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import java.sql.Timestamp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ExceptionAdvisor {
-
+  @ExceptionHandler(ExpiredJwtException.class)
+  public ResponseEntity<?> handleDeviceException(ExpiredJwtException exception) {
+    return setResponseFromException(HttpStatus.UNAUTHORIZED, exception.getLocalizedMessage());
+  }
   @ExceptionHandler(ChatroomLimitException.class)
   public ResponseEntity<?> handleDeviceException(ChatroomLimitException exception) {
     return setResponseFromException(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage());

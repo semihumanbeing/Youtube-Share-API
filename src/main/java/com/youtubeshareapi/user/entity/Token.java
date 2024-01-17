@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
@@ -36,8 +37,10 @@ public class Token {
   @JsonIgnore
   private User user;
   @Column(name = "access_token")
+  @Setter
   private String accessToken;
   @Column(name = "refresh_token")
+  @Setter
   private String refreshToken;
   @CreationTimestamp
   @Column(name = "created_at")

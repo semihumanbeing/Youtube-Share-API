@@ -15,4 +15,5 @@ public interface UserService {
   UserDTO findUserByEmail(String email);
   boolean existsByEmail(String email);
 
+  TokenDTO refreshAccessToken(String refreshToken);
 }
