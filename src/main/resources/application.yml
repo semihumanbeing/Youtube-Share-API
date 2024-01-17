@@ -5,7 +5,7 @@ spring:
       port: 6379
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/youtube_share?characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mariadb://127.0.0.1:3306/youtube_share?characterEncoding=UTF-8&serverTimezone=UTC
     username: ${DBUser:}
     password: ${DBPwd:}
   jpa:
