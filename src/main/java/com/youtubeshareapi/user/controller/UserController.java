@@ -40,10 +40,10 @@ public class UserController {
 
     Cookie cookie = new Cookie("jwt", tokenDTO.getAccessToken());
     cookie.setHttpOnly(true);
+    cookie.setSecure(true);
     cookie.setPath("/");
     response.addCookie(cookie);
 
-    System.out.println("success");
     return ResponseEntity.status(HttpStatus.OK)
         .body(ResponseDTO.builder()
             .timestamp(new Timestamp(System.currentTimeMillis()))

@@ -67,7 +67,23 @@ public class ChatroomController {
             .timestamp(new Timestamp(System.currentTimeMillis()))
             .build());
   }
+  /**
+   * 유저가 소유한 채팅방 목록 조회
+   * @param request
+   * @return
+   */
+  @GetMapping("/all")
+  public ResponseEntity<?> getAllChatrooms(HttpServletRequest request) {
+    String token = CookieUtil.resolveToken(request);
+    Long userId = getUserIdFromToken(token);
 
+    List<ChatroomDTO> chatroomsOfUser = chatroomService.findChatroomsOfUser(userId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ResponseDTO.builder()
+            .data(chatroomsOfUser)
+            .timestamp(new Timestamp(System.currentTimeMillis()))
+            .build());
+  }
   /**
    * 유저가 소유한 채팅방 목록 조회
    * @param request
