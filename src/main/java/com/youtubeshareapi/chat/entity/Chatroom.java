@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -43,6 +44,12 @@ public class Chatroom {
   private String chatroomName;
   @Column(name = "chatroom_password")
   private String chatroomPassword;
+  @Column(name = "user_count")
+  private int userCount;
+  @Column(name = "max_user_count")
+  private int maxUserCount;
+  @Column(name = "has_pwd")
+  private boolean hasPwd;
   @CreationTimestamp
   @Column(name = "created_at")
   @Temporal(TemporalType.TIMESTAMP)
@@ -55,9 +62,13 @@ public class Chatroom {
   public static ChatroomDTO toDTO(Chatroom chatroom) {
     return ChatroomDTO.builder()
         .chatroomId(chatroom.getChatroomId())
-        .user(chatroom.getUser())
+        .userId(chatroom.getUser().getUserId())
+        .username(chatroom.getUser().getUsername())
         .chatroomName(chatroom.getChatroomName())
         .chatroomPassword(chatroom.getChatroomPassword())
+        .userCount(chatroom.getUserCount())
+        .maxUserCount(chatroom.getMaxUserCount())
+        .hasPwd(chatroom.isHasPwd())
         .createdAt(chatroom.getCreatedAt())
         .updatedAt(chatroom.getUpdatedAt())
         .build();

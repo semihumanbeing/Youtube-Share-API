@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.sql.Timestamp;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -36,6 +38,8 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<?> login(HttpServletRequest request, HttpServletResponse response,
       @Valid @RequestBody LoginRequest loginRequest) {
+
+    log.info("---------login");
     if (!userService.existsByEmail(loginRequest.getEmail())) {
       throw new AuthException("cannot find user");
     }
@@ -61,6 +65,8 @@ public class UserController {
 
   @PostMapping("/logout")
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
+    log.info("---------logout");
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
@@ -81,6 +87,8 @@ public class UserController {
 
   @PostMapping("/register")
   public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+
+    log.info("---------register");
     userService.register(UserDTO.builder()
         .email(registerRequest.getEmail())
         .username(registerRequest.getUsername())
@@ -96,6 +104,7 @@ public class UserController {
 
   @GetMapping("/refresh")
   public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest refreshRequest) {
+    log.info("---------refreshToken");
     TokenDTO refreshTokenDTO = userService.refreshAccessToken(refreshRequest.getRefreshToken());
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ResponseDTO.builder()

@@ -1,10 +1,18 @@
 package com.youtubeshareapi.chat.entity;
 
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.youtubeshareapi.chat.model.ChatroomDTO;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import static com.youtubeshareapi.chat.entity.QChatroom.chatroom;
+import static com.youtubeshareapi.user.entity.QUser.user;
 
 public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
   private final JPAQueryFactory query;
@@ -33,5 +41,19 @@ public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
         .from(chatroom)
         .where(chatroom.user.userId.eq(userId))
         .fetchFirst());
+  }
+
+  @Override
+  public Page<ChatroomDTO> findAllChatrooms(Pageable pageable) {
+    List<ChatroomDTO> result = query
+        .select(chatroom)
+        .from(chatroom)
+        .join(chatroom.user, user)
+        .orderBy(chatroom.chatroomId.desc())
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch().stream().map(Chatroom::toDTO).collect(Collectors.toList());
+    return new PageImpl<>(result, pageable, result.size());
+
   }
 }
