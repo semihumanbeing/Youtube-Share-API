@@ -53,7 +53,10 @@ public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch().stream().map(Chatroom::toDTO).collect(Collectors.toList());
-    return new PageImpl<>(result, pageable, result.size());
+    int count = Math.toIntExact(query.select(chatroom.count())
+        .from(chatroom)
+        .fetchFirst());
+    return new PageImpl<>(result, pageable, count);
 
   }
 }

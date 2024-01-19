@@ -23,6 +23,7 @@ public class ChatroomDTO {
     private String username;
     @NotEmpty(message = "chatroom name cannot be empty")
     private String chatroomName;
+    private String emoji;
     private String chatroomPassword;
     private int userCount;
     private int maxUserCount;
@@ -32,18 +33,19 @@ public class ChatroomDTO {
 
     public Chatroom toEntity(ChatroomDTO chatroomDTO){
         return Chatroom.builder()
-            .chatroomId(chatroomDTO.chatroomId)
+            .chatroomId(chatroomDTO.getChatroomId())
             .user(User.builder()
-                .userId(chatroomDTO.userId)
+                .userId(chatroomDTO.getUserId())
                 .username(chatroomDTO.getUsername())
                 .build())
-            .chatroomName(chatroomDTO.chatroomName)
-            .chatroomPassword(chatroomDTO.chatroomPassword)
+            .chatroomName(chatroomDTO.getChatroomName())
+            .emoji(chatroomDTO.getEmoji())
+            .chatroomPassword(chatroomDTO.getChatroomPassword())
             .userCount(chatroomDTO.getUserCount())
             .maxUserCount(chatroomDTO.getMaxUserCount())
             .hasPwd(chatroomDTO.isHasPwd())
-            .createdAt(chatroomDTO.createdAt)
-            .updatedAt(chatroomDTO.updatedAt)
+            .createdAt(chatroomDTO.getCreatedAt())
+            .updatedAt(chatroomDTO.getUpdatedAt())
             .build();
     }
 

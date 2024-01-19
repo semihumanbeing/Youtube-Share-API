@@ -7,6 +7,7 @@ import com.youtubeshareapi.chat.model.PageRequest;
 import com.youtubeshareapi.chat.model.UpdateChatroomRequest;
 import com.youtubeshareapi.chat.service.ChatroomService;
 import com.youtubeshareapi.common.CookieUtil;
+import com.youtubeshareapi.common.EmojiUtil;
 import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.exception.ChatroomLimitException;
 import com.youtubeshareapi.security.JwtTokenProvider;
@@ -57,12 +58,14 @@ public class ChatroomController {
     log.info("---------createChatroom");
     int chatroomAmount = chatroomService.countChatroomByUserId(userId);
     if (chatroomAmount >= CHATROOM_AMOUNT_LIMIT) {
-      throw new ChatroomLimitException("chatroom amount limit = "+ CHATROOM_AMOUNT_LIMIT);
+      // throw new ChatroomLimitException("chatroom amount limit = "+ CHATROOM_AMOUNT_LIMIT);
     }
     chatroomDTO.setUserId(userId);
     chatroomDTO.setMaxUserCount(MAX_USER_COUNT);
     chatroomDTO.setHasPwd(!chatroomDTO.getChatroomPassword().isBlank());
+    chatroomDTO.setEmoji(EmojiUtil.getRandomEmoji());
 
+    // 채팅방 생성
     ChatroomDTO savedChatroomData = chatroomService.saveChatroom(chatroomDTO);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -71,6 +74,7 @@ public class ChatroomController {
                 .chatroomId(savedChatroomData.getChatroomId())
                 .userId(userId)
                 .chatroomName(savedChatroomData.getChatroomName())
+                .emoji(savedChatroomData.getEmoji())
                 .chatroomPassword(savedChatroomData.getChatroomPassword())
                 .userCount(savedChatroomData.getUserCount())
                 .maxUserCount(savedChatroomData.getMaxUserCount())
@@ -87,10 +91,11 @@ public class ChatroomController {
    */
   @GetMapping("/all")
   public ResponseEntity<?> getAllChatrooms(HttpServletRequest request,
-      com.youtubeshareapi.chat.model.PageRequest pageRequest) {
+      PageRequest pageRequest) {
 
     log.info("---------getAllChatrooms");
     Pageable pageable = pageRequest.of();
+    log.info("-----{}",pageable);
     Page<ChatroomDTO> chatrooms = chatroomService.findAllChatrooms(pageable);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -106,7 +111,6 @@ public class ChatroomController {
    */
   @GetMapping("")
   public ResponseEntity<?> getChatroomsOfUser(HttpServletRequest request) {
-
     log.info("---------getChatroomsOfUser");
     String token = CookieUtil.resolveToken(request);
     Long userId = getUserIdFromToken(token);

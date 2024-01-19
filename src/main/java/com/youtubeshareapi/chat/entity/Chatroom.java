@@ -40,6 +40,8 @@ public class Chatroom {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+  @Column(name = "emoji")
+  private String emoji;
   @Column(name = "chatroom_name", nullable = false)
   private String chatroomName;
   @Column(name = "chatroom_password")
@@ -65,6 +67,7 @@ public class Chatroom {
         .userId(chatroom.getUser().getUserId())
         .username(chatroom.getUser().getUsername())
         .chatroomName(chatroom.getChatroomName())
+        .emoji(chatroom.getEmoji())
         .chatroomPassword(chatroom.getChatroomPassword())
         .userCount(chatroom.getUserCount())
         .maxUserCount(chatroom.getMaxUserCount())

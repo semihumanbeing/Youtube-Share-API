@@ -16,6 +16,7 @@ public class CreateChatroomResponse {
   private Long chatroomId;
   private Long userId;
   private String chatroomName;
+  private String emoji;
   private String chatroomPassword;
   private int userCount;
   private int maxUserCount;
