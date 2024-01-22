@@ -4,15 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.lang.Nullable;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +32,7 @@ public class RedisSubscriber implements MessageListener {
     log.info("Received message from channel '{}': {}", channel, body);
     try {
       ChatMessage msg = objectMapper.readValue(messageToPublish, ChatMessage.class);
-      messageTemplate.convertAndSend(topic + msg.getRoomId(), msg);
+      messageTemplate.convertAndSend(topic + msg.getChatroomId(), msg);
 
     } catch (Exception e) {
       log.error(e.getMessage());
