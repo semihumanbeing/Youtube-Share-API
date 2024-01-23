@@ -1,6 +1,7 @@
 package com.youtubeshareapi.user.model;
 
 
+import com.youtubeshareapi.user.entity.User;
 import java.sql.Timestamp;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,13 @@ public class UserDTO {
   private String email;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-
+  public static UserDTO of(User user) {
+    return UserDTO.builder()
+        .userId(user.getUserId())
+        .username(user.getUsername())
+        .password(user.getPassword())
+        .email(user.getEmail())
+        .createdAt(user.getCreatedAt())
+        .build();
+  }
 }

@@ -84,13 +84,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDTO findUserByEmail(String email) {
     User user = userRepository.findByEmail(email).orElseThrow(RuntimeException::new);
-    return UserDTO.builder()
-        .userId(user.getUserId())
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .email(user.getEmail())
-        .createdAt(user.getCreatedAt())
-        .build();
+    return UserDTO.of(user);
   }
 
   @Override
