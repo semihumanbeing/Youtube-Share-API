@@ -1,6 +1,7 @@
 package com.youtubeshareapi.user.service;
 
 import com.youtubeshareapi.exception.AuthException;
+import com.youtubeshareapi.exception.ErrorCode;
 import com.youtubeshareapi.security.JwtTokenProvider;
 import com.youtubeshareapi.user.entity.Token;
 import com.youtubeshareapi.user.entity.TokenRepository;
@@ -29,9 +30,9 @@ public class UserServiceImpl implements UserService {
   @Override
   public TokenDTO login(String email, String password) {
     User user = userRepository.findByEmail(email)
-        .orElseThrow(()-> new AuthException("cannot find user"));
+        .orElseThrow(()-> new AuthException(ErrorCode.USER_NOT_FOUND));
     boolean loginSucceed = passwordEncoder.matches(password, user.getPassword());
-    if(!loginSucceed) throw new AuthException("password is wrong");
+    if(!loginSucceed) throw new AuthException(ErrorCode.WRONG_PASSWORD);
 
     Token token = user.getToken();
     if(token == null){
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public void register(UserDTO userDTO) {
     if(userRepository.existsByEmail(userDTO.getEmail())){
-      throw new AuthException("email already exists");
+      throw new AuthException(ErrorCode.EMAIL_ALREADY_EXISTS);
     }
 
     User user = User.builder()
@@ -72,13 +73,8 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDTO findUserByUserId(Long userId) {
     User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
-    return UserDTO.builder()
-        .userId(user.getUserId())
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .email(user.getEmail())
-        .createdAt(user.getCreatedAt())
-        .build();
+    return UserDTO.of(user);
+
   }
 
   @Override
@@ -96,7 +92,7 @@ public class UserServiceImpl implements UserService {
   public TokenDTO refreshAccessToken(String refreshToken) {
     Long userId = getUserIdFromToken(refreshToken);
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new AuthException("cannot find user from refreshToken"));
+        .orElseThrow(() -> new AuthException(ErrorCode.TOKEN_USER_NOT_FOUND));
 
     Token token = tokenRepository.findByUserId(userId);
     Token newToken = jwtTokenProvider.generateToken(user);

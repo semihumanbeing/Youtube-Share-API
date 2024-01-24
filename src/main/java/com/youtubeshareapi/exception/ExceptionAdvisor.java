@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionAdvisor {
   @ExceptionHandler(ExpiredJwtException.class)
-  public ResponseEntity<?> handleDeviceException(ExpiredJwtException exception) {
+  public ResponseEntity<?> ExpiredJwtException(ExpiredJwtException exception) {
     return setResponseFromException(HttpStatus.UNAUTHORIZED, exception.getLocalizedMessage());
   }
   @ExceptionHandler(ChatroomLimitException.class)
-  public ResponseEntity<?> handleDeviceException(ChatroomLimitException exception) {
+  public ResponseEntity<?> ChatroomLimitException(ChatroomLimitException exception) {
     return setResponseFromException(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage());
   }
 
   @ExceptionHandler(AuthException.class)
-  public ResponseEntity<?> handleDeviceException(AuthException exception) {
-    return setResponseFromException(HttpStatus.BAD_REQUEST, exception.getLocalizedMessage());
+  public ResponseEntity<?> AuthException(AuthException exception) {
+    return setResponseFromException(HttpStatus.BAD_REQUEST, exception, exception.getErrorCode());
   }
 
   @ExceptionHandler({MethodArgumentNotValidException.class})
@@ -32,12 +32,12 @@ public class ExceptionAdvisor {
   }
 
   private <E extends Exception> ResponseEntity<?> setResponseFromException(HttpStatus httpStatus,
-      E exception) {
+      E exception, String errorCode) {
     return ResponseEntity.status(httpStatus)
         .body(ResponseDTO.builder()
             .data(null)
             .timestamp(new Timestamp(System.currentTimeMillis()))
-            .errorCode(httpStatus.toString())
+            .errorCode(errorCode)
             .errorMsg(exception.getMessage())
             .build());
   }

@@ -2,6 +2,7 @@ package com.youtubeshareapi.user.controller;
 
 import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.exception.AuthException;
+import com.youtubeshareapi.exception.ErrorCode;
 import com.youtubeshareapi.user.model.LoginRequest;
 import com.youtubeshareapi.user.model.LoginResponse;
 import com.youtubeshareapi.user.model.RefreshRequest;
@@ -42,7 +43,7 @@ public class UserController {
 
     log.info("---------login");
     if (!userService.existsByEmail(loginRequest.getEmail())) {
-      throw new AuthException("cannot find user");
+      throw new AuthException(ErrorCode.USER_NOT_FOUND);
     }
     TokenDTO tokenDTO = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
 
