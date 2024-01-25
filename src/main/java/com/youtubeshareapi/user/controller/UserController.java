@@ -57,6 +57,7 @@ public class UserController {
         .body(ResponseDTO.builder()
             .timestamp(new Timestamp(System.currentTimeMillis()))
             .data(LoginResponse.builder()
+                .userId(tokenDTO.getUserId())
                 .username(tokenDTO.getUsername())
                 .accessToken(tokenDTO.getAccessToken())
                 .refreshToken(tokenDTO.getRefreshToken())
@@ -88,9 +89,13 @@ public class UserController {
   }
 
   @PostMapping("/register")
-  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest)
+      throws IllegalAccessException {
 
     log.info("---------register");
+    if(registerRequest.getUsername().length() > 10) {
+      throw new IllegalAccessException("username is too long");
+    }
     userService.register(UserDTO.builder()
         .email(registerRequest.getEmail())
         .username(registerRequest.getUsername())
@@ -104,7 +109,7 @@ public class UserController {
             .build());
   }
 
-  @GetMapping("/refresh")
+  @PostMapping("/refresh")
   public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest refreshRequest) {
     log.info("---------refreshToken");
     TokenDTO refreshTokenDTO = userService.refreshAccessToken(refreshRequest.getRefreshToken());
