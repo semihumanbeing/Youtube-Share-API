@@ -1,4 +1,4 @@
-package com.youtubeshareapi.chat.config;
+package com.youtubeshareapi.common.config;
 
 import com.youtubeshareapi.chat.model.ChatMessage;
 import lombok.RequiredArgsConstructor;

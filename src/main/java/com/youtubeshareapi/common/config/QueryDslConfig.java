@@ -1,4 +1,4 @@
-package com.youtubeshareapi.chat.config;
+package com.youtubeshareapi.common.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

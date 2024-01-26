@@ -1,4 +1,4 @@
-package com.youtubeshareapi.chat.config;
+package com.youtubeshareapi.common.config;
 
 import com.youtubeshareapi.chat.service.RedisSubscriber;
 import org.springframework.context.annotation.Bean;

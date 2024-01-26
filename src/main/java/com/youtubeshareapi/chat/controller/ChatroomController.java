@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -135,6 +136,7 @@ public class ChatroomController {
     String chatroomName = updateChatroomRequest.getChatroomName();
     String chatroomPassword = updateChatroomRequest.getChatroomPassword();
 
+    // 변경사항이 없으면 기존의 정보를 리턴한다.
     if(chatroomName.equals(chatroomDTO.getChatroomName()) &&
     chatroomPassword.equals(chatroomDTO.getChatroomPassword())){
       return ResponseEntity.status(HttpStatus.OK)
@@ -174,5 +176,14 @@ public class ChatroomController {
     return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
   }
 
+  // TODO 채팅방 입장할 시 유저 count 업데이트
+  @GetMapping("/enter/{chatroomId}")
+  public ResponseEntity<?> enterChatroom(HttpServletRequest request, @PathVariable String chatroomId) {
+    return ResponseEntity.ok()
+        .body(ResponseDTO.builder()
+            .data(Map.of("chatroomId", chatroomId, "userCount", "1"))
+            .timestamp(new Timestamp(System.currentTimeMillis()))
+            .build());
+  }
 
 }
