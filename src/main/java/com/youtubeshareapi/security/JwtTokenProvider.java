@@ -49,7 +49,7 @@ public class JwtTokenProvider {
     // Refresh Token 생성
     String refreshToken = Jwts.builder()
         .setSubject(String.valueOf(user.getUserId()))
-        .setExpiration(new Date(now + 86400000))
+        .setExpiration(new Date(now + 864000000))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
 
@@ -60,7 +60,6 @@ public class JwtTokenProvider {
         .build();
   }
 
-  // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
   public Authentication getAuthentication(String accessToken) {
     // Jwt 토큰 복호화
     Claims claims = parseClaims(accessToken);
@@ -78,7 +77,6 @@ public class JwtTokenProvider {
     return new UsernamePasswordAuthenticationToken(principal, "", authorities);
   }
 
-  // 토큰 정보를 검증하는 메서드
   public boolean validateToken(String token) {
     try {
       Jwts.parserBuilder()

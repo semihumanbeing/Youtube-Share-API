@@ -34,11 +34,16 @@ public class UserServiceImpl implements UserService {
     boolean loginSucceed = passwordEncoder.matches(password, user.getPassword());
     if(!loginSucceed) throw new AuthException(ErrorCode.WRONG_PASSWORD);
 
-    Token token = user.getToken();
-    if(token == null){
+    Token token = tokenRepository.findByUserId(user.getUserId());
+    if (token == null) {
       token = jwtTokenProvider.generateToken(user);
-      token = tokenRepository.save(token);
+    } else {
+      Token generatedToken = jwtTokenProvider.generateToken(user);
+      token.setAccessToken(generatedToken.getAccessToken());
+      token.setRefreshToken(generatedToken.getRefreshToken());
     }
+    token = tokenRepository.save(token);
+
     return TokenDTO.builder()
         .userId(user.getUserId())
         .username(user.getUsername())
