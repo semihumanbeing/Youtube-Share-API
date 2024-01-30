@@ -3,6 +3,7 @@ package com.youtubeshareapi.chat.service;
 import com.youtubeshareapi.chat.entity.Chatroom;
 import com.youtubeshareapi.chat.entity.ChatroomRepository;
 import com.youtubeshareapi.chat.model.ChatroomDTO;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,20 @@ public class ChatroomServiceImpl implements ChatroomService{
   @Override
   public Page<ChatroomDTO> findAllChatrooms(Pageable pageable) {
     return chatroomRepository.findAllChatrooms(pageable);
+  }
+  @Transactional
+  public void incrementUserCount(UUID chatRoomId) {
+    Chatroom chatroom = chatroomRepository.findById(chatRoomId)
+        .orElseThrow(() -> new RuntimeException("Chatroom not found"));
+    chatroom.setUserCount(chatroom.getUserCount() + 1);
+    chatroomRepository.save(chatroom);
+  }
+
+  @Transactional
+  public void decrementUserCount(UUID chatRoomId) {
+    Chatroom chatroom = chatroomRepository.findById(chatRoomId)
+        .orElseThrow(() -> new RuntimeException("Chatroom not found"));
+    chatroom.setUserCount(chatroom.getUserCount() - 1);
+    chatroomRepository.save(chatroom);
   }
 }

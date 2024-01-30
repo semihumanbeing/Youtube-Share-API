@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -51,6 +52,7 @@ public class Chatroom {
   private String chatroomName;
   @Column(name = "chatroom_password")
   private String chatroomPassword;
+  @Setter
   @Column(name = "user_count")
   private int userCount;
   @Column(name = "max_user_count")

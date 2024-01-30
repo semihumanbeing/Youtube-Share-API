@@ -18,5 +18,6 @@ public interface ChatroomService {
   void deleteChatroomByChatroomId(UUID chatroomId);
 
   Page<ChatroomDTO> findAllChatrooms(Pageable pageable);
-
+  void incrementUserCount(UUID chatRoomId);
+  void decrementUserCount(UUID chatRoomId);
 }
