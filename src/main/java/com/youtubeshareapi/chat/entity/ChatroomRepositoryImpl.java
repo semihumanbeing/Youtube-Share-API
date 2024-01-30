@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.youtubeshareapi.chat.model.ChatroomDTO;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,11 +26,11 @@ public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
     return query.select(chatroom)
         .from(chatroom)
         .where(chatroom.user.userId.eq(userId))
-        .orderBy(chatroom.chatroomId.desc())
+        .orderBy(chatroom.createdAt.desc())
         .fetch();
   }
   @Override
-  public Chatroom findByChatroomId(Long chatroomId) {
+  public Chatroom findByChatroomId(UUID chatroomId) {
     return query.select(chatroom)
         .from(chatroom)
         .where(chatroom.chatroomId.eq(chatroomId))

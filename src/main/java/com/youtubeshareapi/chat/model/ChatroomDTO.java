@@ -6,6 +6,7 @@ import com.youtubeshareapi.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import java.sql.Timestamp;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChatroomDTO {
 
-    private Long chatroomId;
+    private UUID chatroomId;
     private Long userId;
     private String username;
     @NotEmpty(message = "chatroom name cannot be empty")

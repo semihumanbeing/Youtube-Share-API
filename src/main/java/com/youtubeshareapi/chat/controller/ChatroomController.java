@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -57,10 +58,9 @@ public class ChatroomController {
     Long userId = getUserIdFromToken(token);
 
     log.info("---------createChatroom");
-    int chatroomAmount = chatroomService.countChatroomByUserId(userId);
-    if (chatroomAmount >= CHATROOM_AMOUNT_LIMIT) {
-      // throw new ChatroomLimitException("chatroom amount limit = "+ CHATROOM_AMOUNT_LIMIT);
-    }
+    checkChatroomAmount(userId);
+
+    chatroomDTO.setChatroomId(UUID.randomUUID());
     chatroomDTO.setUserId(userId);
     chatroomDTO.setMaxUserCount(MAX_USER_COUNT);
     chatroomDTO.setHasPwd(!chatroomDTO.getChatroomPassword().isBlank());
@@ -85,6 +85,14 @@ public class ChatroomController {
             .timestamp(new Timestamp(System.currentTimeMillis()))
             .build());
   }
+
+  private void checkChatroomAmount(Long userId) {
+    int chatroomAmount = chatroomService.countChatroomByUserId(userId);
+    if (chatroomAmount >= CHATROOM_AMOUNT_LIMIT) {
+      throw new ChatroomLimitException("chatroom amount limit = "+ CHATROOM_AMOUNT_LIMIT);
+    }
+  }
+
   /**
    * 모든 채팅방 목록 조회
    * @param request
@@ -126,12 +134,13 @@ public class ChatroomController {
 
   @PutMapping("/{chatroomId}")
   public ResponseEntity<?> updateChatroomName(HttpServletRequest request,
-      @PathVariable Long chatroomId,
+      @PathVariable String chatroomId,
       @RequestBody UpdateChatroomRequest updateChatroomRequest){
     log.info("---------updateChatroomName");
     String token = CookieUtil.resolveToken(request);
     Long userId = getUserIdFromToken(token);
-    ChatroomDTO chatroomDTO = chatroomService.findByChatroomId(userId, chatroomId);
+    UUID chatroomUuid = UUID.fromString(chatroomId);
+    ChatroomDTO chatroomDTO = chatroomService.findByChatroomId(userId, chatroomUuid);
 
     String chatroomName = updateChatroomRequest.getChatroomName();
     String chatroomPassword = updateChatroomRequest.getChatroomPassword();
@@ -163,11 +172,12 @@ public class ChatroomController {
 
   @DeleteMapping("/{chatroomId}")
   public ResponseEntity<?> deleteChatroom(HttpServletRequest request,
-      @PathVariable Long chatroomId){
+      @PathVariable String chatroomId){
 
     log.info("---------updateChatroomName");
     // Todo 방을 만든 사람만 삭제할수 있음
-    chatroomService.deleteChatroomByChatroomId(chatroomId);
+    UUID chatroomUuid = UUID.fromString(chatroomId);
+    chatroomService.deleteChatroomByChatroomId(chatroomUuid);
 
     return null;
   }

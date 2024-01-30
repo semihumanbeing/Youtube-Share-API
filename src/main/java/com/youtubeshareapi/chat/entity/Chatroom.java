@@ -18,13 +18,18 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.sql.Timestamp;
 import java.util.Set;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.id.uuid.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Builder
@@ -34,9 +39,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "chatroom")
 public class Chatroom {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "chatroom_id")
-  private Long chatroomId;
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  private UUID chatroomId;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;

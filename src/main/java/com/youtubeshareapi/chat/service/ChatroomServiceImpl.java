@@ -4,6 +4,7 @@ import com.youtubeshareapi.chat.entity.Chatroom;
 import com.youtubeshareapi.chat.entity.ChatroomRepository;
 import com.youtubeshareapi.chat.model.ChatroomDTO;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,14 +33,14 @@ public class ChatroomServiceImpl implements ChatroomService{
   }
 
   @Override
-  public ChatroomDTO findByChatroomId(Long userId, Long chatroomId) {
+  public ChatroomDTO findByChatroomId(Long userId, UUID chatroomId) {
     Chatroom chatroom = chatroomRepository
         .findByChatroomId(chatroomId);
     return Chatroom.toDTO(chatroom);
   }
 
   @Override
-  public void deleteChatroomByChatroomId(Long chatroomId) {
+  public void deleteChatroomByChatroomId(UUID chatroomId) {
     chatroomRepository.deleteById(chatroomId);
   }
 
