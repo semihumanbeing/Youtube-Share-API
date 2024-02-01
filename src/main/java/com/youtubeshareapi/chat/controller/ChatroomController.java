@@ -2,6 +2,7 @@ package com.youtubeshareapi.chat.controller;
 
 import com.youtubeshareapi.chat.entity.Chatroom;
 import com.youtubeshareapi.chat.model.ChatroomDTO;
+import com.youtubeshareapi.chat.model.CreateChatroomRequest;
 import com.youtubeshareapi.chat.model.CreateChatroomResponse;
 import com.youtubeshareapi.chat.model.PageRequest;
 import com.youtubeshareapi.chat.model.UpdateChatroomRequest;
@@ -47,24 +48,29 @@ public class ChatroomController {
 
   /**
    * 채팅방 제작
-   * @param chatroomDTO
+   * @param createChatroomRequest
    * @param request
    * @return
    */
   @PostMapping("")
-  public ResponseEntity<?> createChatroom(@Valid @RequestBody ChatroomDTO chatroomDTO,
+  public ResponseEntity<?> createChatroom(@Valid @RequestBody CreateChatroomRequest createChatroomRequest,
       HttpServletRequest request) {
     String token = CookieUtil.resolveToken(request);
     Long userId = getUserIdFromToken(token);
 
     log.info("---------createChatroom");
     checkChatroomAmount(userId);
+    String password = createChatroomRequest.getChatroomPassword().trim();
 
-    chatroomDTO.setChatroomId(UUID.randomUUID());
-    chatroomDTO.setUserId(userId);
-    chatroomDTO.setMaxUserCount(MAX_USER_COUNT);
-    chatroomDTO.setHasPwd(!chatroomDTO.getChatroomPassword().isBlank());
-    chatroomDTO.setEmoji(EmojiUtil.getRandomEmoji());
+    ChatroomDTO chatroomDTO = ChatroomDTO.builder()
+        .chatroomId(UUID.randomUUID())
+        .userId(userId)
+        .chatroomName(createChatroomRequest.getChatroomName())
+        .chatroomPassword(createChatroomRequest.getChatroomPassword())
+        .maxUserCount(MAX_USER_COUNT)
+        .hasPwd(!password.isEmpty())
+        .emoji(EmojiUtil.getRandomEmoji())
+        .build();
 
     // 채팅방 생성
     ChatroomDTO savedChatroomData = chatroomService.saveChatroom(chatroomDTO);

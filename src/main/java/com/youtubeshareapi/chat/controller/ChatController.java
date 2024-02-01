@@ -3,6 +3,7 @@ package com.youtubeshareapi.chat.controller;
 import com.youtubeshareapi.chat.model.ChatMessage;
 import com.youtubeshareapi.chat.service.ChatroomService;
 import com.youtubeshareapi.chat.service.RedisPublisher;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +34,8 @@ public class ChatController {
   }
 
   @MessageMapping("/chatroom/{chatroomId}/connect")
-  public void handleConnect(@DestinationVariable String chatroomId, SimpMessageHeaderAccessor accessor) {
-    if (accessor.getSessionAttributes() != null) {
-      accessor.getSessionAttributes().put("chatroomId", chatroomId);
-    }
+  public void handleConnect(@DestinationVariable(value = "chatroomId") String chatroomId, SimpMessageHeaderAccessor accessor) {
+    Objects.requireNonNull(accessor.getSessionAttributes()).put("chatroomId", chatroomId);
     chatroomService.incrementUserCount(UUID.fromString(chatroomId));
   }
 

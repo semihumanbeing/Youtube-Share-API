@@ -50,7 +50,7 @@ public class ChatroomRepositoryImpl implements ChatroomRepositoryCustom {
         .select(chatroom)
         .from(chatroom)
         .join(chatroom.user, user)
-        .orderBy(chatroom.chatroomId.desc())
+        .orderBy(chatroom.createdAt.desc())
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch().stream().map(Chatroom::toDTO).collect(Collectors.toList());
