@@ -49,7 +49,7 @@ public class UserController {
 
     Cookie cookie = new Cookie("jwt", tokenDTO.getAccessToken());
     cookie.setHttpOnly(true);
-    cookie.setSecure(true);
+    // cookie.setSecure(true);
     cookie.setPath("/");
     response.addCookie(cookie);
 
