@@ -54,7 +54,6 @@ public class ChatroomServiceImpl implements ChatroomService{
     Chatroom chatroom = chatroomRepository.findById(chatRoomId)
         .orElseThrow(() -> new RuntimeException("Chatroom not found"));
     chatroom.setUserCount(chatroom.getUserCount() + 1);
-    chatroomRepository.save(chatroom);
   }
 
   @Transactional
@@ -62,6 +61,5 @@ public class ChatroomServiceImpl implements ChatroomService{
     Chatroom chatroom = chatroomRepository.findById(chatRoomId)
         .orElseThrow(() -> new RuntimeException("Chatroom not found"));
     chatroom.setUserCount(chatroom.getUserCount() - 1);
-    chatroomRepository.save(chatroom);
   }
 }

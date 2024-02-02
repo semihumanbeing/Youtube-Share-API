@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
         .createdAt(token.getCreatedAt())
         .build();
   }
+  @Transactional
   @Override
   public void register(UserDTO userDTO) {
     if(userRepository.existsByEmail(userDTO.getEmail())){
@@ -67,12 +68,12 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
   }
 
+  @Transactional
   @Override
   public void updateUser(UserDTO userDTO) {
     User user = userRepository.getReferenceById(userDTO.getUserId());
     user.setUsername(userDTO.getUsername());
     user.setPassword(userDTO.getPassword());
-    userRepository.save(user);
   }
 
   @Override
@@ -104,8 +105,6 @@ public class UserServiceImpl implements UserService {
 
     token.setAccessToken(newToken.getAccessToken());
     token.setRefreshToken(newToken.getRefreshToken());
-
-    token = tokenRepository.save(token);
 
     return TokenDTO.builder()
         .userId(user.getUserId())
