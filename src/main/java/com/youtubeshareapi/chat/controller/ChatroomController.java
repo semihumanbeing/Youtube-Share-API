@@ -16,6 +16,7 @@ import com.youtubeshareapi.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -178,28 +179,24 @@ public class ChatroomController {
 
   @DeleteMapping("/{chatroomId}")
   public ResponseEntity<?> deleteChatroom(HttpServletRequest request,
-      @PathVariable String chatroomId){
+      @PathVariable(name = "chatroomId") String chatroomId){
 
-    log.info("---------updateChatroomName");
+    log.info("---------deleteChatroom");
     // Todo 방을 만든 사람만 삭제할수 있음
     UUID chatroomUuid = UUID.fromString(chatroomId);
     chatroomService.deleteChatroomByChatroomId(chatroomUuid);
 
-    return null;
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ResponseDTO.builder()
+            .data(chatroomId)
+            .timestamp(new Timestamp(System.currentTimeMillis()))
+            .build());
   }
 
   private Long getUserIdFromToken(String token){
     return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
   }
 
-  // TODO 채팅방 입장할 시 유저 count 업데이트
-  @GetMapping("/enter/{chatroomId}")
-  public ResponseEntity<?> enterChatroom(HttpServletRequest request, @PathVariable String chatroomId) {
-    return ResponseEntity.ok()
-        .body(ResponseDTO.builder()
-            .data(Map.of("chatroomId", chatroomId, "userCount", "1"))
-            .timestamp(new Timestamp(System.currentTimeMillis()))
-            .build());
-  }
+
 
 }
