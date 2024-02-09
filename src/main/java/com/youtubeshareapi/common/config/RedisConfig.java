@@ -32,6 +32,16 @@ public class RedisConfig {
     return redisTemplate;
   }
   @Bean
+  public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory connectionFactory) {
+    RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+    redisTemplate.setConnectionFactory(connectionFactory);
+    redisTemplate.setKeySerializer(new StringRedisSerializer());
+    redisTemplate.setValueSerializer(new StringRedisSerializer());
+    redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+    redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+    return redisTemplate;
+  }
+  @Bean
   MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
     return new MessageListenerAdapter(subscriber, "onMessage");
   }

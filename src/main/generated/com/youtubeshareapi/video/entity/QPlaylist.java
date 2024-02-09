@@ -22,21 +22,17 @@ public class QPlaylist extends EntityPathBase<Playlist> {
 
     public static final QPlaylist playlist = new QPlaylist("playlist");
 
-    public final StringPath artist = createString("artist");
-
     public final com.youtubeshareapi.chat.entity.QChatroom chatroomId;
 
     public final DateTimePath<java.sql.Timestamp> createdAt = createDateTime("createdAt", java.sql.Timestamp.class);
 
-    public final BooleanPath isCurrent = createBoolean("isCurrent");
+    public final BooleanPath isActive = createBoolean("isActive");
 
     public final NumberPath<Long> playlistId = createNumber("playlistId", Long.class);
 
-    public final StringPath title = createString("title");
+    public final StringPath playlistName = createString("playlistName");
 
     public final DateTimePath<java.sql.Timestamp> updatedAt = createDateTime("updatedAt", java.sql.Timestamp.class);
-
-    public final StringPath url = createString("url");
 
     public QPlaylist(String variable) {
         this(Playlist.class, forVariable(variable), INITS);
