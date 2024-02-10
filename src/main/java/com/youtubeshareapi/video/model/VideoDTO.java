@@ -1,5 +1,6 @@
 package com.youtubeshareapi.video.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.youtubeshareapi.video.entity.Video;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,8 @@ public class VideoDTO {
     private String url;
     private String title;
     private String artist;
-    private Boolean isCurrent;
+    @JsonProperty("isCurrent")
+    private boolean isCurrent;
 
     public VideoDTO(Long videoId, Long userId, String url, String title, String artist, Boolean isCurrent) {
         this.videoId = videoId;
@@ -37,7 +39,7 @@ public class VideoDTO {
                 .url(video.getUrl())
                 .title(video.getTitle())
                 .artist(video.getArtist())
-                .isCurrent(video.getIsCurrent())
+                .isCurrent(video.isCurrent())
                 .build();
     }
 

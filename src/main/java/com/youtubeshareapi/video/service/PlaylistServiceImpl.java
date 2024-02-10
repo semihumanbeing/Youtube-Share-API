@@ -29,6 +29,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final RedisTemplate<String, String> stringRedisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String PLAYLIST_PREFIX = "/playlist/";
+    private static final String VIDEO_PREFIX = "/video/";
 
     @Override
     public PlaylistDTO createPlaylist(PlaylistDTO playlistDTO) {
@@ -38,6 +39,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .playlistName(playlistDTO.getPlaylistName())
                 .isActive(false)
                 .build());
+        redisTemplate.opsForValue().set(getPlaylistPrefix(playlistDTO.getChatroomId()), PlaylistDTO.of(savedPlaylist));
         return PlaylistDTO.of(savedPlaylist);
     }
 
@@ -47,28 +49,30 @@ public class PlaylistServiceImpl implements PlaylistService {
         // db에 비디오 저장
         Video savedVideo = videoRepository.save(Video.of(videoDTO));
         // redis 에 비디오 저장
-        redisTemplate.opsForList().leftPush(getRedisKey(chatroomId), VideoDTO.of(savedVideo));
+        redisTemplate.opsForList().leftPush(getVideoPrefix(chatroomId), VideoDTO.of(savedVideo));
         return VideoDTO.of(savedVideo);
+
     }
 
     @Override
-    public PlaylistDTO getByChatroomId(UUID chatroomId) {
+    public PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException {
         // redis에서 플레이리스트 정보 조회
-        List<String> rawVideoList = stringRedisTemplate.opsForList().range(getRedisKey(chatroomId), 0, -1);
+        List<String> rawVideoList = stringRedisTemplate.opsForList().range(getVideoPrefix(chatroomId), 0, -1);
         if (rawVideoList != null && rawVideoList.size() != 0) {
             // 레디스에 값이 있으면 해당 내용을 반환한다.
-            return PlaylistDTO.builder()
-                    .chatroomId(chatroomId)
-                    .videos(rawVideoList.stream()
-                            .map(video -> {
-                                try {
-                                    return objectMapper.readValue(video, VideoDTO.class);
-                                } catch (JsonProcessingException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            })
-                            .toList())
-                    .build();
+            List<VideoDTO> videoDTOS = rawVideoList.stream()
+                    .map(video -> {
+                        try {
+                            return objectMapper.readValue(video, VideoDTO.class);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+            PlaylistDTO playlistDTO = objectMapper.readValue(stringRedisTemplate.opsForValue()
+                    .get(getPlaylistPrefix(chatroomId)), PlaylistDTO.class);
+            playlistDTO.setVideos(videoDTOS);
+            return playlistDTO;
         }
         // chatroomid 를 통해 플레이리스트와 비디오 리스트를 조인해서 가지고온다.
         PlaylistDTO playlistDTO = playlistRepository.findPlaylistByChatroomId(chatroomId);
@@ -77,7 +81,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         // 데이터베이스도 없으면 그냥 빈 배열이 들어있는 플레이리스트DTO를 반환한다.
         if (!playlistDTO.getVideos().isEmpty()) {
             for(VideoDTO video : playlistDTO.getVideos()) {
-                redisTemplate.opsForList().rightPush(getRedisKey(chatroomId), video);
+                redisTemplate.opsForList().rightPush(getVideoPrefix(chatroomId), video);
             }
         }
 
@@ -85,7 +89,10 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
 
-    private String getRedisKey(UUID chatroomId) {
+    private String getPlaylistPrefix(UUID chatroomId) {
         return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
+    }
+    private String getVideoPrefix(UUID chatroomId) {
+        return String.format("%s%s", VIDEO_PREFIX, chatroomId);
     }
 }

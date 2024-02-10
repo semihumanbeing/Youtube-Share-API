@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -37,7 +38,8 @@ public class Video {
     @Column(name = "artist", length = 200)
     private String artist;
     @Column(name = "is_current")
-    private Boolean isCurrent;
+    @ColumnDefault("0")
+    private boolean isCurrent;
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
@@ -52,7 +54,7 @@ public class Video {
                 .url(videoDTO.getUrl())
                 .title(videoDTO.getTitle())
                 .artist(videoDTO.getArtist())
-                .isCurrent(videoDTO.getIsCurrent())
+                .isCurrent(videoDTO.isCurrent())
                 .build();
     }
 

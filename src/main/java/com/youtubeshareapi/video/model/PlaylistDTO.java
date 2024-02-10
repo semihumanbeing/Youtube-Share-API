@@ -1,5 +1,6 @@
 package com.youtubeshareapi.video.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.youtubeshareapi.video.entity.Playlist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class PlaylistDTO {
     private Long playlistId;
     private UUID chatroomId;
     private String playlistName;
+    @JsonProperty("isActive")
     private boolean isActive;
     private List<VideoDTO> videos;
 
