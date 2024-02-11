@@ -29,8 +29,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlaylistController {
     private final PlaylistService playlistService;
-    private final JwtTokenProvider tokenProvider;
-
 
     @PostMapping("")
     public ResponseEntity<?> createPlaylist(@RequestBody PlaylistDTO playlistDTO) {
@@ -52,51 +50,6 @@ public class PlaylistController {
                         .build());
     }
 
-    @PostMapping("/{chatroomId}/{playlistId}")
-    public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
-                                                @PathVariable(name = "playlistId") Long playlistId,
-                                                @RequestBody VideoRequest videoRequest,
-                                                HttpServletRequest request) {
-        String token = CookieUtil.resolveToken(request);
-        Long userId = getUserIdFromToken(token);
-        UUID chatroomId = UUID.fromString(chatroomIdStr);
 
-        VideoDTO videoDTO = VideoDTO.builder()
-                .playlistId(playlistId)
-                .userId(userId)
-                .url(videoRequest.getUrl())
-                .artist(videoRequest.getArtist())
-                .title(videoRequest.getTitle())
-                .build();
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ResponseDTO.builder()
-                        .data(playlistService.AddVideo(chatroomId, videoDTO))
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .build());
-    }
-
-    @GetMapping("/{chatroomId}/{playlistId}/next")
-    public ResponseEntity<?> getNextVideo(@PathVariable Long chatroomId,
-                                          @PathVariable(name = "playlistId") Long playlistId) {
-        // 레디스에서 현재곡을 rightpop 하고
-        // 그 곡의 iscurrent 를 false 로 변경한다 (비동기적으로 진행)
-
-        // 확인된 마지막 곡을 iscurrent true 로 설정한다.
-        // 레디스의 마지막 곡 정보를 반환한다.
-        return null;
-    }
-
-    @DeleteMapping("/{chatroomId}/{playlistId}")
-    public ResponseEntity<?> deleteVideo(@PathVariable(name = "chatroomId") String chatroomId,
-                                         @PathVariable(name = "playlistId") Long playlistId) {
-        // 레디스에서 chatroomId 를 찾는다
-        // 플레이리스트 아이디 인 것을 찾아 지운다
-        // 데이터베이스에서도 지운다
-
-        return null;
-    }
-    private Long getUserIdFromToken(String token){
-        return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
-    }
 }

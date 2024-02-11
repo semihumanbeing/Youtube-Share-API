@@ -3,9 +3,11 @@ package com.youtubeshareapi.chat.controller;
 import com.youtubeshareapi.chat.model.ChatMessage;
 import com.youtubeshareapi.chat.service.ChatroomService;
 import com.youtubeshareapi.chat.service.RedisPublisher;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.C;
@@ -28,48 +30,48 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @RequiredArgsConstructor
 public class ChatController {
 
-  private final RedisPublisher redisPublisher;
-  private final ChatroomService chatroomService;
+    private final RedisPublisher redisPublisher;
+    private final ChatroomService chatroomService;
 
-  // Websocket에서 들어온 메시지를 redis로 보내준다
-  @MessageMapping("/chat/message")
-  public void message(ChatMessage msg){
-    log.info("message: {}", msg);
-    redisPublisher.publish(new ChannelTopic(msg.getChatroomId()), msg);
-  }
-
-  @MessageMapping("/chatroom/{chatroomId}/connect")
-  public void handleConnect(@DestinationVariable(value = "chatroomId") String chatroomId,
-      @Payload Map<String, String> payload,
-                            SimpMessageHeaderAccessor accessor) {
-    String username = payload.get("username");
-    Objects.requireNonNull(accessor.getSessionAttributes()).put("chatroomId", chatroomId);
-    Objects.requireNonNull(accessor.getSessionAttributes()).put("username", username);
-
-    chatroomService.incrementUserCount(UUID.fromString(chatroomId));
-    redisPublisher.publish(new ChannelTopic(chatroomId), ChatMessage.builder()
-                              .username(username)
-                              .chatroomId(chatroomId)
-                              .message(String.format("%s entered the room", username))
-                              .build());
-  }
-
-  @EventListener
-  public void handleDisconnect(SessionDisconnectEvent event) {
-    log.info("disconnect event=== {}", event);
-    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-    if (accessor.getSessionAttributes() != null) {
-      String chatroomId = (String) accessor.getSessionAttributes().get("chatroomId");
-      String username = (String) accessor.getSessionAttributes().get("username");
-      chatroomService.decrementUserCount(UUID.fromString(chatroomId));
-      redisPublisher.publish(new ChannelTopic(chatroomId), ChatMessage.builder()
-          .username(username)
-          .chatroomId(chatroomId)
-          .message(String.format("%s left the room", username))
-          .build());
+    // Websocket에서 들어온 메시지를 redis로 보내준다
+    @MessageMapping("/chat/message")
+    public void message(ChatMessage msg) {
+        log.info("message: {}", msg);
+        redisPublisher.publishMessage(new ChannelTopic(msg.getChatroomId()), msg);
     }
 
+    @MessageMapping("/chatroom/{chatroomId}/connect")
+    public void handleConnect(@DestinationVariable(value = "chatroomId") String chatroomId,
+                              @Payload Map<String, String> payload,
+                              SimpMessageHeaderAccessor accessor) {
+        String username = payload.get("username");
+        Objects.requireNonNull(accessor.getSessionAttributes()).put("chatroomId", chatroomId);
+        Objects.requireNonNull(accessor.getSessionAttributes()).put("username", username);
 
-  }
+        chatroomService.incrementUserCount(UUID.fromString(chatroomId));
+        redisPublisher.publishMessage(new ChannelTopic(chatroomId), ChatMessage.builder()
+                .username(username)
+                .chatroomId(chatroomId)
+                .message(String.format("%s entered the room", username))
+                .build());
+    }
+
+    @EventListener
+    public void handleDisconnect(SessionDisconnectEvent event) {
+        log.info("disconnect event=== {}", event);
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        if (accessor.getSessionAttributes() != null) {
+            String chatroomId = (String) accessor.getSessionAttributes().get("chatroomId");
+            String username = (String) accessor.getSessionAttributes().get("username");
+            chatroomService.decrementUserCount(UUID.fromString(chatroomId));
+            redisPublisher.publishMessage(new ChannelTopic(chatroomId), ChatMessage.builder()
+                    .username(username)
+                    .chatroomId(chatroomId)
+                    .message(String.format("%s left the room", username))
+                    .build());
+        }
+
+
+    }
 
 }

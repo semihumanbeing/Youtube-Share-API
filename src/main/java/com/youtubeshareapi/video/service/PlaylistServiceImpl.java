@@ -31,6 +31,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     private static final String PLAYLIST_PREFIX = "/playlist/";
     private static final String VIDEO_PREFIX = "/video/";
 
+
     @Override
     public PlaylistDTO createPlaylist(PlaylistDTO playlistDTO) {
         Playlist savedPlaylist = playlistRepository.save(Playlist.builder()
@@ -43,16 +44,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         return PlaylistDTO.of(savedPlaylist);
     }
 
-    @Transactional
-    @Override
-    public VideoDTO AddVideo(UUID chatroomId, VideoDTO videoDTO) {
-        // db에 비디오 저장
-        Video savedVideo = videoRepository.save(Video.of(videoDTO));
-        // redis 에 비디오 저장
-        redisTemplate.opsForList().leftPush(getVideoPrefix(chatroomId), VideoDTO.of(savedVideo));
-        return VideoDTO.of(savedVideo);
 
-    }
 
     @Override
     public PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException {
@@ -87,7 +79,6 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         return playlistDTO;
     }
-
 
     private String getPlaylistPrefix(UUID chatroomId) {
         return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
