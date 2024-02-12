@@ -25,9 +25,11 @@
     - [x]  getFromUser
     - [x]  getAll (page)
 - [ ]  Playlist
-    - [ ]  create
-    - [ ]  update
+    - [X]  create
+- [ ] Video
+    - [ ]  addToPlaylist
+    - [ ]  getCurrent (ws)
+    - [ ]  getNext (ws)
     - [ ]  deleteOne
-    - [ ]  deleteAll
     - [ ]  getByChatroomId
      
