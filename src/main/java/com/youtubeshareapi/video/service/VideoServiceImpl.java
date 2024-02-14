@@ -101,7 +101,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Transactional
-    private void updateCurrentVideoOnDatabase(Long currentVideoId, Long nextVideoId) {
+    public void updateCurrentVideoOnDatabase(Long currentVideoId, Long nextVideoId) {
         videoRepository.deleteById(currentVideoId);
         Optional<Video> nextVideoOptional = videoRepository.findById(nextVideoId);
         nextVideoOptional.ifPresent(v -> v.setCurrent(true));

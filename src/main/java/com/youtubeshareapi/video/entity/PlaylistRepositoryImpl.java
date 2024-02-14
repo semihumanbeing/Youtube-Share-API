@@ -40,7 +40,7 @@ public class PlaylistRepositoryImpl implements PlaylistRepositoryCustom {
                 .leftJoin(video.playlist, playlist)
                 .leftJoin(playlist.chatroomId, chatroom)
                 .where(chatroom.chatroomId.eq(chatroomId))
-                .orderBy(video.videoId.desc())
+                .orderBy(video.videoId.asc())
                 .fetch();
 
         PlaylistDTO playlistDTO = query

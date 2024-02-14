@@ -21,11 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/video")
 public class VideoController {
-    private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider tokenProvider;
-    private final PlaylistService playlistService;
     private final VideoService videoService;
-    private static final String VIDEO_PREFIX = "/video/";
     @PostMapping("/{chatroomId}/{playlistId}")
     public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                                 @PathVariable(name = "playlistId") Long playlistId,

@@ -13,6 +13,8 @@ import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.exception.ChatroomLimitException;
 import com.youtubeshareapi.security.JwtTokenProvider;
 import com.youtubeshareapi.user.entity.User;
+import com.youtubeshareapi.video.model.PlaylistDTO;
+import com.youtubeshareapi.video.service.PlaylistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.sql.Timestamp;
@@ -45,6 +47,7 @@ public class ChatroomController {
 
   private static final int MAX_USER_COUNT = 30;
   private final JwtTokenProvider tokenProvider;
+  private final PlaylistService playlistService;
   private final ChatroomService chatroomService;
   private final int CHATROOM_AMOUNT_LIMIT = 5;
 
@@ -76,6 +79,13 @@ public class ChatroomController {
 
     // 채팅방 생성
     ChatroomDTO savedChatroomData = chatroomService.saveChatroom(chatroomDTO);
+
+    // 플레이리스트 생성
+    playlistService.createPlaylist(PlaylistDTO.builder()
+        .playlistName("default playlist")
+        .isActive(true)
+        .chatroomId(chatroomDTO.getChatroomId())
+        .build());
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(ResponseDTO.builder()

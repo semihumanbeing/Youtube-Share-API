@@ -50,7 +50,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     public PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException {
         // redis에서 플레이리스트 정보 조회
         List<String> rawVideoList = stringRedisTemplate.opsForList().range(getVideoPrefix(chatroomId), 0, -1);
-        if (rawVideoList != null && rawVideoList.size() != 0) {
+        if (rawVideoList != null && !rawVideoList.isEmpty()) {
             // 레디스에 값이 있으면 해당 내용을 반환한다.
             List<VideoDTO> videoDTOS = rawVideoList.stream()
                     .map(video -> {
@@ -71,7 +71,7 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         // 레디스에 없으면 데이터베이스에서 찾은다음 레디스에 저장하고 반환한다.
         // 데이터베이스도 없으면 그냥 빈 배열이 들어있는 플레이리스트DTO를 반환한다.
-        if (!playlistDTO.getVideos().isEmpty()) {
+        if (playlistDTO != null && !playlistDTO.getVideos().isEmpty()) {
             for(VideoDTO video : playlistDTO.getVideos()) {
                 redisTemplate.opsForList().rightPush(getVideoPrefix(chatroomId), video);
             }
