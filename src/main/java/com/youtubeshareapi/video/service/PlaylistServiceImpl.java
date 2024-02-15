@@ -12,6 +12,7 @@ import com.youtubeshareapi.video.entity.VideoRepository;
 import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import jakarta.transaction.Transactional;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,7 +39,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .chatroomId(Chatroom.builder()
                         .chatroomId(playlistDTO.getChatroomId()).build())
                 .playlistName(playlistDTO.getPlaylistName())
-                .isActive(false)
+                .isActive(true)
                 .build());
         redisTemplate.opsForValue().set(getPlaylistPrefix(playlistDTO.getChatroomId()), PlaylistDTO.of(savedPlaylist));
         return PlaylistDTO.of(savedPlaylist);
@@ -60,7 +61,8 @@ public class PlaylistServiceImpl implements PlaylistService {
                             throw new RuntimeException(e);
                         }
                     })
-                    .toList();
+                .sorted(Comparator.comparingLong(VideoDTO::getVideoId))
+                .toList();
             PlaylistDTO playlistDTO = objectMapper.readValue(stringRedisTemplate.opsForValue()
                     .get(getPlaylistPrefix(chatroomId)), PlaylistDTO.class);
             playlistDTO.setVideos(videoDTOS);

@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
@@ -28,6 +30,7 @@ public class Playlist {
     private Long playlistId;
     @OneToOne
     @JoinColumn(name = "chatroom_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Chatroom chatroomId;
     @Column(name = "is_active")
     private boolean isActive;

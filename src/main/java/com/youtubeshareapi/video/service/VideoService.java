@@ -10,5 +10,5 @@ public interface VideoService {
     VideoDTO getNextVideo(VideoMessage videoMessage) throws JsonProcessingException;
     VideoDTO getCurrentVideo(UUID chatroomId) throws JsonProcessingException;
     VideoDTO AddVideo(UUID chatroomId, VideoDTO videoDTO);
-    VideoDTO deleteVideo(String chatroomId, Long videoId);
+    VideoDTO deleteVideo(String chatroomId, Long videoId) throws JsonProcessingException;
 }

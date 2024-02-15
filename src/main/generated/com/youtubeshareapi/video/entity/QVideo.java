@@ -30,6 +30,12 @@ public class QVideo extends EntityPathBase<Video> {
 
     public final QPlaylist playlist;
 
+    public final NumberPath<Integer> thumbnailHeight = createNumber("thumbnailHeight", Integer.class);
+
+    public final StringPath thumbnailImg = createString("thumbnailImg");
+
+    public final NumberPath<Integer> thumbnailWidth = createNumber("thumbnailWidth", Integer.class);
+
     public final StringPath title = createString("title");
 
     public final DateTimePath<java.sql.Timestamp> updatedAt = createDateTime("updatedAt", java.sql.Timestamp.class);
@@ -37,6 +43,8 @@ public class QVideo extends EntityPathBase<Video> {
     public final StringPath url = createString("url");
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
+
+    public final StringPath username = createString("username");
 
     public final NumberPath<Long> videoId = createNumber("videoId", Long.class);
 

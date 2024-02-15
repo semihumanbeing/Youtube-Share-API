@@ -1,5 +1,6 @@
 package com.youtubeshareapi.video.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.youtubeshareapi.common.CookieUtil;
 import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.security.JwtTokenProvider;
@@ -34,14 +35,18 @@ public class VideoController {
 
         VideoDTO videoDTO = VideoDTO.builder()
                 .playlistId(playlistId)
-                .userId(userId)
-                .url(videoRequest.getUrl())
-                .artist(videoRequest.getArtist())
-                .title(videoRequest.getTitle())
-                .build();
+                    .userId(userId)
+                    .username(videoRequest.getUsername())
+                    .url(videoRequest.getUrl())
+                    .artist(videoRequest.getArtist())
+                    .title(videoRequest.getTitle())
+                    .thumbnailImg(videoRequest.getThumbnailImg())
+                    .thumbnailWidth(videoRequest.getThumbnailWidth())
+                    .thumbnailHeight(videoRequest.getThumbnailHeight())
+                    .build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ResponseDTO.builder()
+            .body(ResponseDTO.builder()
                         .data(videoService.AddVideo(chatroomId, videoDTO))
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .build());
@@ -49,7 +54,8 @@ public class VideoController {
     @DeleteMapping("/{chatroomId}/{playlistId}/{videoId}")
     public ResponseEntity<?> deleteVideo(@PathVariable(name = "chatroomId") String chatroomId,
                                          @PathVariable(name = "playlistId") Long playlistId,
-                                         @PathVariable(name = "videoId") Long videoId) {
+                                         @PathVariable(name = "videoId") Long videoId)
+        throws JsonProcessingException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDTO.builder()
                         .data(videoService.deleteVideo(chatroomId, videoId))

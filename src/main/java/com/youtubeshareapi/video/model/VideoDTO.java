@@ -16,19 +16,26 @@ public class VideoDTO {
     private Long videoId;
     private Long playlistId;
     private Long userId;
+    private String username;
     private String url;
     private String title;
     private String artist;
+    private String thumbnailImg;
+    private int thumbnailWidth;
+    private int thumbnailHeight;
     @JsonProperty("isCurrent")
     private boolean isCurrent;
 
-    public VideoDTO(Long videoId, Long userId, String url, String title, String artist, Boolean isCurrent) {
+    public VideoDTO(Long videoId, Long userId, String url, String title, String artist, Boolean isCurrent, String thumbnailImg, int thumbnailWidth, int thumbnailHeight) {
         this.videoId = videoId;
         this.userId = userId;
         this.url = url;
         this.title = title;
         this.artist = artist;
         this.isCurrent = isCurrent;
+        this.thumbnailImg = thumbnailImg;
+        this.thumbnailWidth = thumbnailWidth;
+        this.thumbnailHeight = thumbnailHeight;
     }
 
     public static VideoDTO of(Video video) {
@@ -36,10 +43,14 @@ public class VideoDTO {
                 .videoId(video.getVideoId())
                 .playlistId(video.getPlaylist().getPlaylistId())
                 .userId(video.getUserId())
+                .username(video.getUsername())
                 .url(video.getUrl())
                 .title(video.getTitle())
                 .artist(video.getArtist())
                 .isCurrent(video.isCurrent())
+                .thumbnailImg(video.getThumbnailImg())
+                .thumbnailWidth(video.getThumbnailWidth())
+                .thumbnailHeight(video.getThumbnailHeight())
                 .build();
     }
 

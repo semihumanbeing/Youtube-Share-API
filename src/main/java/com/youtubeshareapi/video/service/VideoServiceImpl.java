@@ -1,6 +1,7 @@
 package com.youtubeshareapi.video.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.video.entity.Video;
 import com.youtubeshareapi.video.entity.VideoRepository;
@@ -9,12 +10,14 @@ import com.youtubeshareapi.video.model.VideoMessage;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VideoServiceImpl implements VideoService {
@@ -35,7 +38,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public VideoDTO deleteVideo(String chatroomId, Long videoId) {
+    public VideoDTO deleteVideo(String chatroomId, Long videoId) throws JsonProcessingException {
         String redisKey = getVideoPrefix(UUID.fromString(chatroomId));
         ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
         List<String> videoList = listOps.range(redisKey, 0, -1);
@@ -43,19 +46,18 @@ public class VideoServiceImpl implements VideoService {
         if (videoList == null) {
             throw new EntityNotFoundException();
         }
-
+        VideoDTO videoDTO = null;
         for (String videoStr : videoList) {
-            VideoDTO videoDTO = objectMapper.convertValue(videoStr, VideoDTO.class);
+            videoDTO = objectMapper.readValue(videoStr, new TypeReference<VideoDTO>() {});
             if (videoDTO.getVideoId().equals(videoId)) {
                 // 레디스에서 지운다
                 listOps.remove(redisKey, 1, videoStr);
-                // 데이터베이스에서도 지운다
-                videoRepository.deleteById(videoId);
-                return videoDTO;
+                break;
             }
         }
-        // 해당 videoId를 가진 비디오를 찾을 수 없음
-        return null;
+        // 데이터베이스에서도 지운다
+        videoRepository.deleteById(videoId);
+        return videoDTO;
     }
     @Override
     public VideoDTO getCurrentVideo(UUID chatroomId) throws JsonProcessingException {
