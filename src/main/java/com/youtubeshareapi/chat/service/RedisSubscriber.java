@@ -1,7 +1,9 @@
 package com.youtubeshareapi.chat.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.model.ChatMessage;
+import com.youtubeshareapi.video.model.VideoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -19,7 +21,8 @@ public class RedisSubscriber implements MessageListener {
   private final ObjectMapper objectMapper;
   private final SimpMessageSendingOperations messageTemplate;
 
-  private final String topic = "/sub/chat/room/";
+  private final String CHAT_TOPIC = "/sub/chat/room/";
+  private final String VIDEO_TOPIC = "/sub";
 
   // Websocket에서 redis로 메시지를 보내면 MessageListener가 보고있다가 Websocket 구독자들에게 보내준다
 
@@ -31,8 +34,13 @@ public class RedisSubscriber implements MessageListener {
 
     log.info("Received message from channel '{}': {}", channel, body);
     try {
-      ChatMessage msg = objectMapper.readValue(messageToPublish, ChatMessage.class);
-      messageTemplate.convertAndSend(topic + msg.getChatroomId(), msg);
+      if (channel.startsWith("/video")) {
+        VideoDTO msg = objectMapper.readValue(messageToPublish, new TypeReference<VideoDTO>() {});
+        messageTemplate.convertAndSend(VIDEO_TOPIC + channel, msg);
+      } else {
+        ChatMessage msg = objectMapper.readValue(messageToPublish, ChatMessage.class);
+        messageTemplate.convertAndSend(CHAT_TOPIC + channel, msg);
+      }
 
     } catch (Exception e) {
       log.error(e.getMessage());

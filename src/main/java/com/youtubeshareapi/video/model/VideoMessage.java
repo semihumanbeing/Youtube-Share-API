@@ -13,6 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class VideoMessage {
     private UUID chatroomId;
-    private Long playlistId;
 
 }

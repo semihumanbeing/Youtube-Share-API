@@ -20,7 +20,6 @@ import java.sql.Timestamp;
 @Table(name = "video")
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Video {
@@ -50,6 +49,7 @@ public class Video {
     private int thumbnailHeight;
     @Column(name = "is_current")
     @ColumnDefault("0")
+    @Setter
     private boolean isCurrent;
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

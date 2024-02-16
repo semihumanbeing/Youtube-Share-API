@@ -63,6 +63,7 @@ public class ChatController {
         if (accessor.getSessionAttributes() != null) {
             String chatroomId = (String) accessor.getSessionAttributes().get("chatroomId");
             String username = (String) accessor.getSessionAttributes().get("username");
+            if (chatroomId == null) return;
             chatroomService.decrementUserCount(UUID.fromString(chatroomId));
             redisPublisher.publishMessage(new ChannelTopic(chatroomId), ChatMessage.builder()
                     .username(username)

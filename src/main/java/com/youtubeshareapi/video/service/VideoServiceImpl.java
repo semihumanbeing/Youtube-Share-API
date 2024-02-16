@@ -59,18 +59,24 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.deleteById(videoId);
         return videoDTO;
     }
+    @Transactional
     @Override
     public VideoDTO getCurrentVideo(UUID chatroomId) throws JsonProcessingException {
         String redisKey = getVideoPrefix(chatroomId);
         VideoDTO currentVideo = null;
+        ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
         // 레디스에서 현재 곡 가져오기
-        String currentVideoJson = stringRedisTemplate.opsForList().index(redisKey, -1);
-
+        String currentVideoJson = listOps.index(redisKey, -1);
         if (currentVideoJson != null) {
-            currentVideo = objectMapper.readValue(currentVideoJson, VideoDTO.class);
+            currentVideo = objectMapper.readValue(currentVideoJson, new TypeReference<VideoDTO>() {});
+            currentVideo.setCurrent(true);
+            listOps.set(redisKey, -1, objectMapper.writeValueAsString(currentVideo));
+
+            Video videoEntity = videoRepository.findById(currentVideo.getVideoId()).orElseThrow(EntityNotFoundException::new);
+            videoEntity.setCurrent(true);
+
         }
-        // todo db에서도 확인하기
 
         return currentVideo;
     }
@@ -82,24 +88,30 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Transactional
     public VideoDTO getNextVideo(VideoMessage videoMessage) throws JsonProcessingException {
-        String redisKey = getVideoPrefix(videoMessage.getChatroomId());
-        ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
+      String redisKey = getVideoPrefix(videoMessage.getChatroomId());
+      ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
-        VideoDTO currentVideo = objectMapper.readValue(listOps.rightPop(redisKey), VideoDTO.class);
-
-        if (currentVideo != null) {
-            VideoDTO nextVideo = objectMapper.readValue(listOps.index(redisKey, -1), VideoDTO.class);
-
-            if (nextVideo != null) {
-                nextVideo.setCurrent(true);
-                listOps.set(redisKey, -1, objectMapper.writeValueAsString(nextVideo));
-                updateCurrentVideoOnDatabase(currentVideo.getVideoId(), nextVideo.getVideoId());
-            } else {
-                videoRepository.deleteById(currentVideo.getVideoId());
-            }
-            return nextVideo;
-        }
+      String currentVideoJson = listOps.rightPop(redisKey);
+      // 데이터가 없으면 빈 값 반환
+      if (currentVideoJson == null) {
         return null;
+      }
+      VideoDTO currentVideo = objectMapper.readValue(currentVideoJson, VideoDTO.class);
+      String nextVideoJson = listOps.index(redisKey, -1);
+      // 현재 비디오만 있고 다음 비디오가 없으면 현재 비디오를 삭제
+      if (nextVideoJson == null) {
+        videoRepository.deleteById(currentVideo.getVideoId());
+        listOps.rightPop(redisKey);
+        return null;
+      }
+
+      // 현재비디오와 다음 비디오가 전부 있으면 다음 비디오를 현재 비디오로 설정
+      VideoDTO nextVideo = objectMapper.readValue(nextVideoJson, VideoDTO.class);
+      nextVideo.setCurrent(true);
+      listOps.set(redisKey, -1, objectMapper.writeValueAsString(nextVideo));
+      updateCurrentVideoOnDatabase(currentVideo.getVideoId(), nextVideo.getVideoId());
+      return nextVideo;
+
     }
 
     @Transactional
