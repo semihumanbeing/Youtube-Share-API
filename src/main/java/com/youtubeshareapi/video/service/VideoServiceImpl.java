@@ -111,7 +111,6 @@ public class VideoServiceImpl implements VideoService {
       listOps.set(redisKey, -1, objectMapper.writeValueAsString(nextVideo));
       updateCurrentVideoOnDatabase(currentVideo.getVideoId(), nextVideo.getVideoId());
       return nextVideo;
-
     }
 
     @Transactional
