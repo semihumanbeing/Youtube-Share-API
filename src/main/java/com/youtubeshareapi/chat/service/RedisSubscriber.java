@@ -3,6 +3,7 @@ package com.youtubeshareapi.chat.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.model.ChatMessage;
+import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class RedisSubscriber implements MessageListener {
     try {
       if (channel.startsWith("/video")) {
         VideoDTO msg = objectMapper.readValue(messageToPublish, new TypeReference<VideoDTO>() {});
+        messageTemplate.convertAndSend(VIDEO_TOPIC + channel, msg);
+      } else if (channel.startsWith("/playlist")) {
+        PlaylistDTO msg = objectMapper.readValue(messageToPublish, new TypeReference<PlaylistDTO>() {});
         messageTemplate.convertAndSend(VIDEO_TOPIC + channel, msg);
       } else {
         ChatMessage msg = objectMapper.readValue(messageToPublish, ChatMessage.class);

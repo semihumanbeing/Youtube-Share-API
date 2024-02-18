@@ -1,8 +1,8 @@
 package com.youtubeshareapi.chat.service;
 
 import com.youtubeshareapi.chat.model.ChatMessage;
+import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
-import com.youtubeshareapi.video.model.VideoMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +23,10 @@ public class RedisPublisher {
   public void publishVideo(ChannelTopic topic, VideoDTO videoDTO){
     redisTemplate.convertAndSend(topic.getTopic(), videoDTO);
     log.info("Published message to topic '{}': {}", topic.getTopic(), videoDTO);
+  }
+  public void publishPlaylist(ChannelTopic topic, PlaylistDTO playlistDTO){
+    redisTemplate.convertAndSend(topic.getTopic(), playlistDTO);
+    log.info("Published message to topic '{}': {}", topic.getTopic(), playlistDTO);
   }
 
 }

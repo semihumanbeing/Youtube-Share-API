@@ -1,25 +1,17 @@
 package com.youtubeshareapi.video.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.service.RedisPublisher;
 import com.youtubeshareapi.video.model.VideoDTO;
 import com.youtubeshareapi.video.model.VideoMessage;
 import com.youtubeshareapi.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Controller
@@ -29,7 +21,7 @@ public class VideoEventController {
     private final VideoService videoService;
     private static final String VIDEO_PREFIX = "/video/";
 
-    // 처음 입장했을때
+    // 현재 곡을 모든 사용자에게 전달
     @MessageMapping("/video/current")
     public void getCurrentVideo(VideoMessage videoMessage) throws JsonProcessingException {
         VideoDTO currentVideo = videoService.getCurrentVideo(videoMessage.getChatroomId());
@@ -38,6 +30,7 @@ public class VideoEventController {
         }
     }
 
+    // 다음 곡을 모든 사용자에게 전달
     @MessageMapping("/video/next")
     public void getNextVideo(VideoMessage videoMessage) throws JsonProcessingException {
         // 레디스에서 현재 곡을 rightpop
