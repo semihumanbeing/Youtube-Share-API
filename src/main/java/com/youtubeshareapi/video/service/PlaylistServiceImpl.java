@@ -50,10 +50,11 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     public PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException {
         // redis에서 플레이리스트 정보 조회
-        List<String> rawVideoList = stringRedisTemplate.opsForList().range(getVideoPrefix(chatroomId), 0, -1);
-        if (rawVideoList != null && !rawVideoList.isEmpty()) {
+        List<String> videoListStr = stringRedisTemplate.opsForList().range(getVideoPrefix(chatroomId), 0, -1);
+        String playlistStr = stringRedisTemplate.opsForValue().get(getPlaylistPrefix(chatroomId));
+        if (videoListStr != null && playlistStr != null) {
             // 레디스에 값이 있으면 해당 내용을 반환한다.
-            List<VideoDTO> videoDTOS = rawVideoList.stream()
+            List<VideoDTO> videoDTOS = videoListStr.stream()
                     .map(video -> {
                         try {
                             return objectMapper.readValue(video, VideoDTO.class);
@@ -63,8 +64,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                     })
                 .sorted(Comparator.comparingLong(VideoDTO::getVideoId))
                 .toList();
-            PlaylistDTO playlistDTO = objectMapper.readValue(stringRedisTemplate.opsForValue()
-                    .get(getPlaylistPrefix(chatroomId)), PlaylistDTO.class);
+            PlaylistDTO playlistDTO = objectMapper.readValue(playlistStr, PlaylistDTO.class);
             playlistDTO.setVideos(videoDTOS);
             return playlistDTO;
         }

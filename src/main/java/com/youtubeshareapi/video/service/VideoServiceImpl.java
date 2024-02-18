@@ -73,8 +73,7 @@ public class VideoServiceImpl implements VideoService {
             currentVideo.setCurrent(true);
             listOps.set(redisKey, -1, objectMapper.writeValueAsString(currentVideo));
 
-            Video videoEntity = videoRepository.findById(currentVideo.getVideoId()).orElseThrow(EntityNotFoundException::new);
-            videoEntity.setCurrent(true);
+            videoRepository.findById(currentVideo.getVideoId()).ifPresent(video -> video.setCurrent(true));
 
         }
 
