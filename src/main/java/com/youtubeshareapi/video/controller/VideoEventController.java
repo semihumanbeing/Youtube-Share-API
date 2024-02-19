@@ -31,6 +31,7 @@ public class VideoEventController {
         if (currentVideo != null) {
             redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), currentVideo);
         }
+        playlistService.sendSseRequest(videoMessage.getChatroomId());
     }
 
     // 다음 곡을 모든 사용자에게 전달
