@@ -26,7 +26,7 @@ public class VideoServiceImpl implements VideoService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final VideoRepository videoRepository;
     private static final String VIDEO_PREFIX = "/video/";
-
+    private static final String PLAYLIST_PREFIX = "/playlist/";
     @Transactional
     @Override
     public VideoDTO AddVideo(UUID chatroomId, VideoDTO videoDTO) {
@@ -34,6 +34,7 @@ public class VideoServiceImpl implements VideoService {
         Video savedVideo = videoRepository.save(Video.of(videoDTO));
         // redis 에 비디오 저장
         redisTemplate.opsForList().leftPush(getVideoPrefix(chatroomId), VideoDTO.of(savedVideo));
+
         return VideoDTO.of(savedVideo);
     }
 

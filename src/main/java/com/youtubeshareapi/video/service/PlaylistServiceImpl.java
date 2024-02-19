@@ -25,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlaylistServiceImpl implements PlaylistService {
     private final PlaylistRepository playlistRepository;
-    private final VideoRepository videoRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisTemplate<String, String> stringRedisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();

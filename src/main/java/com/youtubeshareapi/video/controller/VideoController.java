@@ -1,15 +1,19 @@
 package com.youtubeshareapi.video.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.youtubeshareapi.chat.service.RedisPublisher;
 import com.youtubeshareapi.common.CookieUtil;
 import com.youtubeshareapi.common.ResponseDTO;
 import com.youtubeshareapi.security.JwtTokenProvider;
+import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import com.youtubeshareapi.video.model.VideoRequest;
+import com.youtubeshareapi.video.service.PlaylistService;
 import com.youtubeshareapi.video.service.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +28,11 @@ import java.util.UUID;
 public class VideoController {
     private final JwtTokenProvider tokenProvider;
     private final VideoService videoService;
+    private final PlaylistService playlistService;
+    private final RedisPublisher redisPublisher;
     @Value("${google-api.key}")
     public String googleApiKey;
+    private static final String PLAYLIST_PREFIX = "/playlist/";
 
     // 유투브에서 검색 결과를 가져오는 api
     @GetMapping("/youtube")
@@ -48,7 +55,8 @@ public class VideoController {
     public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                                 @PathVariable(name = "playlistId") Long playlistId,
                                                 @RequestBody VideoRequest videoRequest,
-                                                HttpServletRequest request) {
+                                                HttpServletRequest request)
+        throws JsonProcessingException {
         String token = CookieUtil.resolveToken(request);
         Long userId = getUserIdFromToken(token);
         UUID chatroomId = UUID.fromString(chatroomIdStr);
@@ -64,10 +72,16 @@ public class VideoController {
                     .thumbnailWidth(videoRequest.getThumbnailWidth())
                     .thumbnailHeight(videoRequest.getThumbnailHeight())
                     .build();
+        videoService.AddVideo(chatroomId, videoDTO);
+
+        PlaylistDTO playlistDTO = playlistService.getByChatroomId(chatroomId);
+        if (playlistDTO != null) {
+            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(chatroomId)), playlistDTO);
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(ResponseDTO.builder()
-                        .data(videoService.AddVideo(chatroomId, videoDTO))
+                        .data(videoDTO)
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .build());
     }
@@ -76,13 +90,22 @@ public class VideoController {
                                          @PathVariable(name = "playlistId") Long playlistId,
                                          @PathVariable(name = "videoId") Long videoId)
         throws JsonProcessingException {
+        VideoDTO videoDTO = videoService.deleteVideo(chatroomId, videoId);
+        PlaylistDTO playlistDTO = playlistService.getByChatroomId(UUID.fromString(chatroomId));
+        if (playlistDTO != null) {
+            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(
+                UUID.fromString(chatroomId))), playlistDTO);
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDTO.builder()
-                        .data(videoService.deleteVideo(chatroomId, videoId))
+                        .data(videoDTO)
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .build());
     }
     private Long getUserIdFromToken(String token){
         return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
+    }
+    private String getPlaylistPrefix(UUID chatroomId) {
+        return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
     }
 }

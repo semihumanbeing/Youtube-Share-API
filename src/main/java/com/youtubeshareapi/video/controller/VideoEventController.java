@@ -2,8 +2,10 @@ package com.youtubeshareapi.video.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.youtubeshareapi.chat.service.RedisPublisher;
+import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import com.youtubeshareapi.video.model.VideoMessage;
+import com.youtubeshareapi.video.service.PlaylistService;
 import com.youtubeshareapi.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +20,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VideoEventController {
     private final RedisPublisher redisPublisher;
+    private final PlaylistService playlistService;
     private final VideoService videoService;
     private static final String VIDEO_PREFIX = "/video/";
+    private static final String PLAYLIST_PREFIX = "/playlist/";
 
     // 현재 곡을 모든 사용자에게 전달
     @MessageMapping("/video/current")
@@ -41,9 +45,15 @@ public class VideoEventController {
         } else {
             redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), new VideoDTO());
         }
+        PlaylistDTO playlistDTO = playlistService.getByChatroomId(videoMessage.getChatroomId());
+        if (playlistDTO != null) {
+            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(videoMessage.getChatroomId())), playlistDTO);
+        }
     }
     private String getVideoPrefix(UUID chatroomId) {
         return String.format("%s%s", VIDEO_PREFIX, chatroomId);
     }
-
+    private String getPlaylistPrefix(UUID chatroomId) {
+        return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
+    }
 }
