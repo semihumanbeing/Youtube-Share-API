@@ -36,7 +36,6 @@ public class ChatController {
     // Websocket에서 들어온 메시지를 redis로 보내준다
     @MessageMapping("/chat/message")
     public void message(ChatMessage msg) {
-        log.info("message: {}", msg);
         redisPublisher.publishMessage(new ChannelTopic(msg.getChatroomId()), msg);
     }
 

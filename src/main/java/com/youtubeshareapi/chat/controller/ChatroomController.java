@@ -122,7 +122,6 @@ public class ChatroomController {
 
     log.info("---------getAllChatrooms");
     Pageable pageable = pageRequest.of();
-    log.info("-----{}",pageable);
     Page<ChatroomDTO> chatrooms = chatroomService.findAllChatrooms(pageable);
 
     return ResponseEntity.status(HttpStatus.OK)

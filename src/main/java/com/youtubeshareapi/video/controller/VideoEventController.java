@@ -32,7 +32,7 @@ public class VideoEventController {
         if (currentVideo != null) {
             redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), currentVideo);
         }
-        playlistService.sendSseRequest(videoMessage.getChatroomId());
+        playlistService.sendPlaylistUpdateSSE(videoMessage.getChatroomId());
     }
 
     // 다음 곡을 모든 사용자에게 전달
@@ -42,7 +42,7 @@ public class VideoEventController {
         VideoDTO nextVideo = videoService.getNextVideo(videoMessage);
         // 웹소켓으로 다음 곡을 전달
         redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), Objects.requireNonNullElseGet(nextVideo, VideoDTO::new));
-        playlistService.sendSseRequest(videoMessage.getChatroomId());
+        playlistService.sendPlaylistUpdateSSE(videoMessage.getChatroomId());
     }
     private String getVideoPrefix(UUID chatroomId) {
         return String.format("%s%s", VIDEO_PREFIX, chatroomId);

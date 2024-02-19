@@ -13,6 +13,7 @@ import com.youtubeshareapi.video.service.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.client.RestClient;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/video")
@@ -30,10 +32,8 @@ public class VideoController {
     private final JwtTokenProvider tokenProvider;
     private final VideoService videoService;
     private final PlaylistService playlistService;
-    private final RedisPublisher redisPublisher;
     @Value("${google-api.key}")
     public String googleApiKey;
-    private static final String PLAYLIST_PREFIX = "/playlist/";
 
     // 유투브에서 검색 결과를 가져오는 api
     @GetMapping("/youtube")
@@ -56,7 +56,7 @@ public class VideoController {
     public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                                 @PathVariable(name = "playlistId") Long playlistId,
                                                 @RequestBody VideoRequest videoRequest,
-                                                HttpServletRequest request) {
+                                                HttpServletRequest request) throws JsonProcessingException {
         String token = CookieUtil.resolveToken(request);
         Long userId = getUserIdFromToken(token);
         UUID chatroomId = UUID.fromString(chatroomIdStr);
@@ -73,7 +73,7 @@ public class VideoController {
                     .thumbnailHeight(videoRequest.getThumbnailHeight())
                     .build();
         videoService.AddVideo(chatroomId, videoDTO);
-        playlistService.sendSseRequest(chatroomId);
+        playlistService.sendPlaylistUpdateSSE(chatroomId);
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(ResponseDTO.builder()
@@ -89,7 +89,7 @@ public class VideoController {
         UUID chatroomId = UUID.fromString(chatroomIdStr);
         VideoDTO videoDTO = videoService.deleteVideo(chatroomId, videoId);
 
-        playlistService.sendSseRequest(chatroomId);
+        playlistService.sendPlaylistUpdateSSE(chatroomId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDTO.builder()

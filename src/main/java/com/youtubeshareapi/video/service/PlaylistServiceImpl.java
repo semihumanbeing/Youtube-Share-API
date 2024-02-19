@@ -1,31 +1,24 @@
 package com.youtubeshareapi.video.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youtubeshareapi.chat.entity.Chatroom;
-import com.youtubeshareapi.chat.service.RedisSubscriber;
 import com.youtubeshareapi.video.entity.Playlist;
 import com.youtubeshareapi.video.entity.PlaylistRepository;
-import com.youtubeshareapi.video.entity.Video;
-import com.youtubeshareapi.video.entity.VideoRepository;
 import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
-import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -37,6 +30,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String PLAYLIST_PREFIX = "/playlist/";
     private static final String VIDEO_PREFIX = "/video/";
+    public static Map<String, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     @Override
     public PlaylistDTO createPlaylist(PlaylistDTO playlistDTO) {
@@ -84,12 +78,34 @@ public class PlaylistServiceImpl implements PlaylistService {
         // 데이터베이스도 없으면 그냥 빈 배열이 들어있는 플레이리스트DTO를 반환한다.
         return playlistDTO;
     }
-    public void sendSseRequest(UUID chatroomId) {
-        RestClient client = RestClient.create("http://localhost:8080/api/playlist");
 
-        client.get()
-            .uri(String.format("/sse/%s", chatroomId))
-            .retrieve();
+    public SseEmitter subscribeSSE(UUID chatroomId) {
+        SseEmitter sseEmitter = new SseEmitter((long) (60000 * 5));
+        String sseKey = getPlaylistPrefix(chatroomId);
+        try {
+            sseEmitter.send(SseEmitter.event().name(sseKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        sseEmitters.put(getPlaylistPrefix(chatroomId), sseEmitter);
+
+        sseEmitter.onCompletion(() -> sseEmitters.remove(sseKey));
+        sseEmitter.onTimeout(() -> sseEmitters.remove(sseKey));
+        sseEmitter.onError((e) -> sseEmitters.remove(sseKey));
+        return sseEmitter;
+    }
+    public void sendPlaylistUpdateSSE(UUID chatroomId) throws JsonProcessingException {
+        String sseKey = getPlaylistPrefix(chatroomId);
+        PlaylistDTO playlistDTO = getByChatroomId(chatroomId);
+        if (sseEmitters.containsKey(sseKey)) {
+            SseEmitter sseEmitter = sseEmitters.get(sseKey);
+            try {
+                sseEmitter.send(SseEmitter.event().name(sseKey).data(playlistDTO));
+            } catch (Exception e) {
+                sseEmitters.remove(sseKey);
+            }
+        }
+
     }
 
     private String getPlaylistPrefix(UUID chatroomId) {
