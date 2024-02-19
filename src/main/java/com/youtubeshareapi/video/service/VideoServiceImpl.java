@@ -63,12 +63,14 @@ public class VideoServiceImpl implements VideoService {
     @Transactional
     @Override
     public VideoDTO getCurrentVideo(UUID chatroomId) throws JsonProcessingException {
+        log.info("========= getCurrentVideo");
         String redisKey = getVideoPrefix(chatroomId);
         VideoDTO currentVideo = null;
         ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
         // 레디스에서 현재 곡 가져오기
         String currentVideoJson = listOps.index(redisKey, -1);
+        log.info("currentVideo: {}", currentVideoJson);
         if (currentVideoJson != null) {
             currentVideo = objectMapper.readValue(currentVideoJson, new TypeReference<VideoDTO>() {});
             currentVideo.setCurrent(true);
@@ -88,6 +90,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Transactional
     public VideoDTO getNextVideo(VideoMessage videoMessage) throws JsonProcessingException {
+      log.info("========= getNextVideo");
       String redisKey = getVideoPrefix(videoMessage.getChatroomId());
       ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
@@ -98,6 +101,7 @@ public class VideoServiceImpl implements VideoService {
       }
       VideoDTO currentVideo = objectMapper.readValue(currentVideoJson, VideoDTO.class);
       String nextVideoJson = listOps.index(redisKey, -1);
+      log.info("current: {} / next: {}",currentVideo, nextVideoJson);
       // 현재 비디오만 있고 다음 비디오가 없으면 현재 비디오를 삭제
       if (nextVideoJson == null) {
         videoRepository.deleteById(currentVideo.getVideoId());

@@ -61,7 +61,7 @@ public class PlaylistController {
     }
 
     @GetMapping("/sse/{chatroomId}")
-    public SseEmitter getPlaylistByChatroomId(@PathVariable(name = "chatroomId") String chatroomIdStr)
+    public SseEmitter getPlaylistByIdForSSE(@PathVariable(name = "chatroomId") String chatroomIdStr)
         throws IOException {
         UUID chatroomId = UUID.fromString(chatroomIdStr);
         SseEmitter emitter = new SseEmitter((long) (60000 * 5));

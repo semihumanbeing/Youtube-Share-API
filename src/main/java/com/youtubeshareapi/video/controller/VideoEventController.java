@@ -13,6 +13,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -40,11 +41,7 @@ public class VideoEventController {
         // 레디스에서 현재 곡을 rightpop
         VideoDTO nextVideo = videoService.getNextVideo(videoMessage);
         // 웹소켓으로 다음 곡을 전달
-        if (nextVideo != null) {
-            redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), nextVideo);
-        } else {
-            redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), new VideoDTO());
-        }
+        redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), Objects.requireNonNullElseGet(nextVideo, VideoDTO::new));
         playlistService.sendSseRequest(videoMessage.getChatroomId());
     }
     private String getVideoPrefix(UUID chatroomId) {
