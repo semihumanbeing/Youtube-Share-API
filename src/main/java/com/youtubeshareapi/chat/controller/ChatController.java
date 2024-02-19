@@ -58,7 +58,6 @@ public class ChatController {
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
-        log.info("disconnect event=== {}", event);
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         if (accessor.getSessionAttributes() != null) {
             String chatroomId = (String) accessor.getSessionAttributes().get("chatroomId");

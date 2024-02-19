@@ -11,6 +11,7 @@ import com.youtubeshareapi.video.model.VideoRequest;
 import com.youtubeshareapi.video.service.PlaylistService;
 import com.youtubeshareapi.video.service.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -55,8 +56,7 @@ public class VideoController {
     public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                                 @PathVariable(name = "playlistId") Long playlistId,
                                                 @RequestBody VideoRequest videoRequest,
-                                                HttpServletRequest request)
-        throws JsonProcessingException {
+                                                HttpServletRequest request) {
         String token = CookieUtil.resolveToken(request);
         Long userId = getUserIdFromToken(token);
         UUID chatroomId = UUID.fromString(chatroomIdStr);
@@ -73,11 +73,7 @@ public class VideoController {
                     .thumbnailHeight(videoRequest.getThumbnailHeight())
                     .build();
         videoService.AddVideo(chatroomId, videoDTO);
-
-        PlaylistDTO playlistDTO = playlistService.getByChatroomId(chatroomId);
-        if (playlistDTO != null) {
-            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(chatroomId)), playlistDTO);
-        }
+        playlistService.sendSseRequest(chatroomId);
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(ResponseDTO.builder()
@@ -86,16 +82,15 @@ public class VideoController {
                         .build());
     }
     @DeleteMapping("/{chatroomId}/{playlistId}/{videoId}")
-    public ResponseEntity<?> deleteVideo(@PathVariable(name = "chatroomId") String chatroomId,
+    public ResponseEntity<?> deleteVideoFromPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                          @PathVariable(name = "playlistId") Long playlistId,
                                          @PathVariable(name = "videoId") Long videoId)
         throws JsonProcessingException {
+        UUID chatroomId = UUID.fromString(chatroomIdStr);
         VideoDTO videoDTO = videoService.deleteVideo(chatroomId, videoId);
-        PlaylistDTO playlistDTO = playlistService.getByChatroomId(UUID.fromString(chatroomId));
-        if (playlistDTO != null) {
-            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(
-                UUID.fromString(chatroomId))), playlistDTO);
-        }
+
+        playlistService.sendSseRequest(chatroomId);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDTO.builder()
                         .data(videoDTO)
@@ -104,8 +99,5 @@ public class VideoController {
     }
     private Long getUserIdFromToken(String token){
         return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
-    }
-    private String getPlaylistPrefix(UUID chatroomId) {
-        return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
     }
 }

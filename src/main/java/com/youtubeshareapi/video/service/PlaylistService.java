@@ -10,4 +10,5 @@ public interface PlaylistService {
     PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException;
 
     PlaylistDTO createPlaylist(PlaylistDTO chatroomId);
+    void sendSseRequest(UUID chatroomId);
 }

@@ -12,15 +12,22 @@ import com.youtubeshareapi.video.entity.VideoRepository;
 import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlaylistServiceImpl implements PlaylistService {
@@ -30,7 +37,6 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String PLAYLIST_PREFIX = "/playlist/";
     private static final String VIDEO_PREFIX = "/video/";
-
 
     @Override
     public PlaylistDTO createPlaylist(PlaylistDTO playlistDTO) {
@@ -43,8 +49,6 @@ public class PlaylistServiceImpl implements PlaylistService {
         redisTemplate.opsForValue().set(getPlaylistPrefix(playlistDTO.getChatroomId()), PlaylistDTO.of(savedPlaylist));
         return PlaylistDTO.of(savedPlaylist);
     }
-
-
 
     @Override
     public PlaylistDTO getByChatroomId(UUID chatroomId) throws JsonProcessingException {
@@ -67,18 +71,25 @@ public class PlaylistServiceImpl implements PlaylistService {
             playlistDTO.setVideos(videoDTOS);
             return playlistDTO;
         }
-        // chatroomid 를 통해 플레이리스트와 비디오 리스트를 조인해서 가지고온다.
+        // 값이 없으면 DB에서 조회한다.
         PlaylistDTO playlistDTO = playlistRepository.findPlaylistByChatroomId(chatroomId);
 
         // 레디스에 없으면 데이터베이스에서 찾은다음 레디스에 저장하고 반환한다.
-        // 데이터베이스도 없으면 그냥 빈 배열이 들어있는 플레이리스트DTO를 반환한다.
         if (playlistDTO != null && !playlistDTO.getVideos().isEmpty()) {
             for(VideoDTO video : playlistDTO.getVideos()) {
                 redisTemplate.opsForList().rightPush(getVideoPrefix(chatroomId), video);
             }
         }
 
+        // 데이터베이스도 없으면 그냥 빈 배열이 들어있는 플레이리스트DTO를 반환한다.
         return playlistDTO;
+    }
+    public void sendSseRequest(UUID chatroomId) {
+        RestClient client = RestClient.create("http://localhost:8080/api/playlist");
+
+        client.get()
+            .uri(String.format("/sse/%s", chatroomId))
+            .retrieve();
     }
 
     private String getPlaylistPrefix(UUID chatroomId) {

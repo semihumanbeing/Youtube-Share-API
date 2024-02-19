@@ -39,8 +39,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public VideoDTO deleteVideo(String chatroomId, Long videoId) throws JsonProcessingException {
-        String redisKey = getVideoPrefix(UUID.fromString(chatroomId));
+    public VideoDTO deleteVideo(UUID chatroomId, Long videoId) throws JsonProcessingException {
+        String redisKey = getVideoPrefix(chatroomId);
         ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
         List<String> videoList = listOps.range(redisKey, 0, -1);
 

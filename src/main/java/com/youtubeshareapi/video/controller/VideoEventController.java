@@ -23,7 +23,6 @@ public class VideoEventController {
     private final PlaylistService playlistService;
     private final VideoService videoService;
     private static final String VIDEO_PREFIX = "/video/";
-    private static final String PLAYLIST_PREFIX = "/playlist/";
 
     // 현재 곡을 모든 사용자에게 전달
     @MessageMapping("/video/current")
@@ -45,15 +44,9 @@ public class VideoEventController {
         } else {
             redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), new VideoDTO());
         }
-        PlaylistDTO playlistDTO = playlistService.getByChatroomId(videoMessage.getChatroomId());
-        if (playlistDTO != null) {
-            redisPublisher.publishPlaylist(new ChannelTopic(getPlaylistPrefix(videoMessage.getChatroomId())), playlistDTO);
-        }
+        playlistService.sendSseRequest(videoMessage.getChatroomId());
     }
     private String getVideoPrefix(UUID chatroomId) {
         return String.format("%s%s", VIDEO_PREFIX, chatroomId);
-    }
-    private String getPlaylistPrefix(UUID chatroomId) {
-        return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
     }
 }
