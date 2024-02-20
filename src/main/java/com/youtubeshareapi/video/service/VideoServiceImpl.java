@@ -33,7 +33,7 @@ public class VideoServiceImpl implements VideoService {
         // db에 비디오 저장
         Video savedVideo = videoRepository.save(Video.of(videoDTO));
         // redis 에 비디오 저장
-        redisTemplate.opsForList().leftPush(getVideoPrefix(chatroomId), VideoDTO.of(savedVideo));
+        redisTemplate.opsForList().rightPush(getVideoPrefix(chatroomId), VideoDTO.of(savedVideo));
 
         return VideoDTO.of(savedVideo);
     }
@@ -45,6 +45,7 @@ public class VideoServiceImpl implements VideoService {
         List<String> videoList = listOps.range(redisKey, 0, -1);
 
         if (videoList == null) {
+            log.error("cannot find video");
             throw new EntityNotFoundException();
         }
         VideoDTO videoDTO = null;
@@ -68,11 +69,11 @@ public class VideoServiceImpl implements VideoService {
         ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
         // 레디스에서 현재 곡 가져오기
-        String currentVideoJson = listOps.index(redisKey, -1);
+        String currentVideoJson = listOps.index(redisKey, 0);
         if (currentVideoJson != null) {
             currentVideo = objectMapper.readValue(currentVideoJson, new TypeReference<VideoDTO>() {});
             currentVideo.setCurrent(true);
-            listOps.set(redisKey, -1, objectMapper.writeValueAsString(currentVideo));
+            listOps.set(redisKey, 0, objectMapper.writeValueAsString(currentVideo));
 
             videoRepository.findById(currentVideo.getVideoId()).ifPresent(video -> video.setCurrent(true));
 
@@ -91,24 +92,24 @@ public class VideoServiceImpl implements VideoService {
       String redisKey = getVideoPrefix(videoMessage.getChatroomId());
       ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
 
-      String currentVideoJson = listOps.rightPop(redisKey);
+      String currentVideoJson = listOps.leftPop(redisKey);
       // 데이터가 없으면 빈 값 반환
       if (currentVideoJson == null) {
         return null;
       }
       VideoDTO currentVideo = objectMapper.readValue(currentVideoJson, VideoDTO.class);
-      String nextVideoJson = listOps.index(redisKey, -1);
+      String nextVideoJson = listOps.index(redisKey, 0);
       // 현재 비디오만 있고 다음 비디오가 없으면 현재 비디오를 삭제
       if (nextVideoJson == null) {
         videoRepository.deleteById(currentVideo.getVideoId());
-        listOps.rightPop(redisKey);
+        listOps.leftPop(redisKey);
         return null;
       }
 
       // 현재비디오와 다음 비디오가 전부 있으면 다음 비디오를 현재 비디오로 설정
       VideoDTO nextVideo = objectMapper.readValue(nextVideoJson, VideoDTO.class);
       nextVideo.setCurrent(true);
-      listOps.set(redisKey, -1, objectMapper.writeValueAsString(nextVideo));
+      listOps.set(redisKey, 0, objectMapper.writeValueAsString(nextVideo));
       updateCurrentVideoOnDatabase(currentVideo.getVideoId(), nextVideo.getVideoId());
       return nextVideo;
     }

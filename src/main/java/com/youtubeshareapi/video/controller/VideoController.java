@@ -56,7 +56,7 @@ public class VideoController {
     public ResponseEntity<?> addVideoToPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                                 @PathVariable(name = "playlistId") Long playlistId,
                                                 @RequestBody VideoRequest videoRequest,
-                                                HttpServletRequest request) throws JsonProcessingException {
+                                                HttpServletRequest request) throws IOException {
         String token = CookieUtil.resolveToken(request);
         Long userId = getUserIdFromToken(token);
         UUID chatroomId = UUID.fromString(chatroomIdStr);
@@ -85,7 +85,7 @@ public class VideoController {
     public ResponseEntity<?> deleteVideoFromPlaylist(@PathVariable(name = "chatroomId") String chatroomIdStr,
                                          @PathVariable(name = "playlistId") Long playlistId,
                                          @PathVariable(name = "videoId") Long videoId)
-        throws JsonProcessingException {
+        throws IOException {
         UUID chatroomId = UUID.fromString(chatroomIdStr);
         VideoDTO videoDTO = videoService.deleteVideo(chatroomId, videoId);
 

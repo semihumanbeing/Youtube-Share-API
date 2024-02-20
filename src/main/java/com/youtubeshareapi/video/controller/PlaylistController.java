@@ -2,9 +2,12 @@ package com.youtubeshareapi.video.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.youtubeshareapi.common.CookieUtil;
 import com.youtubeshareapi.common.ResponseDTO;
+import com.youtubeshareapi.security.JwtTokenProvider;
 import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.service.PlaylistService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class PlaylistController {
     private final PlaylistService playlistService;
+    private final JwtTokenProvider tokenProvider;
     private static final String PLAYLIST_PREFIX = "/playlist/";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -50,13 +54,21 @@ public class PlaylistController {
 
 
     @GetMapping("/sse/{chatroomId}")
-    public SseEmitter subscribeSSE(@PathVariable(name = "chatroomId") String chatroomIdStr)
+    public SseEmitter subscribeSSE(@PathVariable(name = "chatroomId") String chatroomIdStr,
+        HttpServletRequest request)
         throws IOException {
+        String token = CookieUtil.resolveToken(request);
+        Long userId = getUserIdFromToken(token);
+
         UUID chatroomId = UUID.fromString(chatroomIdStr);
-        return playlistService.subscribeSSE(chatroomId);
+        return playlistService.subscribeSSE(chatroomId, userId);
     }
 
     private String getPlaylistPrefix(UUID chatroomId) {
         return String.format("%s%s", PLAYLIST_PREFIX, chatroomId);
     }
+    private Long getUserIdFromToken(String token){
+        return Long.parseLong(tokenProvider.parseClaims(token).getSubject());
+    }
+
 }

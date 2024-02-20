@@ -7,6 +7,7 @@ import com.youtubeshareapi.video.model.VideoDTO;
 import com.youtubeshareapi.video.model.VideoMessage;
 import com.youtubeshareapi.video.service.PlaylistService;
 import com.youtubeshareapi.video.service.VideoService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -27,7 +28,7 @@ public class VideoEventController {
 
     // 현재 곡을 모든 사용자에게 전달
     @MessageMapping("/video/current")
-    public void getCurrentVideo(VideoMessage videoMessage) throws JsonProcessingException {
+    public void getCurrentVideo(VideoMessage videoMessage) throws IOException {
         VideoDTO currentVideo = videoService.getCurrentVideo(videoMessage.getChatroomId());
         if (currentVideo != null) {
             redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), currentVideo);
@@ -37,7 +38,7 @@ public class VideoEventController {
 
     // 다음 곡을 모든 사용자에게 전달
     @MessageMapping("/video/next")
-    public void getNextVideo(VideoMessage videoMessage) throws JsonProcessingException {
+    public void getNextVideo(VideoMessage videoMessage) throws IOException {
         // 레디스에서 현재 곡을 rightpop
         VideoDTO nextVideo = videoService.getNextVideo(videoMessage);
         // 웹소켓으로 다음 곡을 전달

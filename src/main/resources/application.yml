@@ -21,3 +21,6 @@ spring:
 
 jwt:
   secret: 4c4d328d2fe052962698ec4ed63afbb7c9171629b9502498d9faabe19b29e0a3
+
+google-api:
+  key: AIzaSyBWmNCLK5nNj_WU-rtnJ2vGOYBEfcQbc7E
