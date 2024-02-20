@@ -42,6 +42,7 @@ public class UserController {
       @Valid @RequestBody LoginRequest loginRequest) {
 
     log.info("---------login");
+
     if (!userService.existsByEmail(loginRequest.getEmail())) {
       throw new AuthException(ErrorCode.USER_NOT_FOUND);
     }
