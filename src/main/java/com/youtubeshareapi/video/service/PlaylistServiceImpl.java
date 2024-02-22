@@ -75,10 +75,13 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     public PlaylistDTO initPlaylistOnRedis(UUID chatroomId) {
+        log.info("======== init playlist");
         PlaylistDTO playlistDTO = playlistRepository.findPlaylistByChatroomId(chatroomId);
         redisTemplate.opsForValue().set(getPlaylistPrefix(playlistDTO.getChatroomId()), playlistDTO);
         stringRedisTemplate.delete(getVideoPrefix(chatroomId));
-        redisTemplate.opsForList().rightPushAll(getVideoPrefix(chatroomId), playlistDTO.getVideos());
+        for(VideoDTO video : playlistDTO.getVideos()) {
+            redisTemplate.opsForList().rightPush(getVideoPrefix(chatroomId), video);
+        }
         return playlistDTO;
     }
 
