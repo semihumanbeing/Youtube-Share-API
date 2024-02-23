@@ -13,7 +13,7 @@ public interface ChatroomService {
 
   int countChatroomByUserId(Long userId);
 
-  ChatroomDTO findByChatroomId(Long userId, UUID chatroomId);
+  ChatroomDTO findByChatroomId(UUID chatroomId);
 
   void deleteChatroomByChatroomId(UUID chatroomId);
 

@@ -34,7 +34,7 @@ public class ChatroomServiceImpl implements ChatroomService{
   }
 
   @Override
-  public ChatroomDTO findByChatroomId(Long userId, UUID chatroomId) {
+  public ChatroomDTO findByChatroomId(UUID chatroomId) {
     Chatroom chatroom = chatroomRepository
         .findByChatroomId(chatroomId);
     return Chatroom.toDTO(chatroom);

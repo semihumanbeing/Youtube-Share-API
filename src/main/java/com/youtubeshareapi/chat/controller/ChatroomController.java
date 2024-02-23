@@ -149,15 +149,29 @@ public class ChatroomController {
             .build());
   }
 
+  /**
+   * chatroomId로 채팅방 조회
+   * @param request
+   * @return
+   */
+  @GetMapping("/{chatroomId}")
+  public ResponseEntity<?> getChatroomByChatroomId(HttpServletRequest request,
+      @PathVariable(name = "chatroomId") String chatroomId) {
+    log.info("---------getChatroomByChatroomId");
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ResponseDTO.builder()
+            .data(chatroomService.findByChatroomId(UUID.fromString(chatroomId)))
+            .timestamp(new Timestamp(System.currentTimeMillis()))
+            .build());
+  }
+
   @PutMapping("/{chatroomId}")
   public ResponseEntity<?> updateChatroomName(HttpServletRequest request,
       @PathVariable String chatroomId,
       @RequestBody UpdateChatroomRequest updateChatroomRequest){
     log.info("---------updateChatroomName");
-    String token = CookieUtil.resolveToken(request);
-    Long userId = getUserIdFromToken(token);
     UUID chatroomUuid = UUID.fromString(chatroomId);
-    ChatroomDTO chatroomDTO = chatroomService.findByChatroomId(userId, chatroomUuid);
+    ChatroomDTO chatroomDTO = chatroomService.findByChatroomId(chatroomUuid);
 
     String chatroomName = updateChatroomRequest.getChatroomName();
     String chatroomPassword = updateChatroomRequest.getChatroomPassword();
@@ -192,7 +206,6 @@ public class ChatroomController {
       @PathVariable(name = "chatroomId") String chatroomId){
 
     log.info("---------deleteChatroom");
-    // Todo 방을 만든 사람만 삭제할수 있음
     UUID chatroomUuid = UUID.fromString(chatroomId);
     chatroomService.deleteChatroomByChatroomId(chatroomUuid);
 

@@ -3,12 +3,14 @@ package com.youtubeshareapi.exception;
 import com.youtubeshareapi.common.ResponseDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.sql.Timestamp;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class ExceptionAdvisor {
   @ExceptionHandler(ExpiredJwtException.class)
@@ -33,6 +35,7 @@ public class ExceptionAdvisor {
 
   private <E extends Exception> ResponseEntity<?> setResponseFromException(HttpStatus httpStatus,
       E exception, String errorCode) {
+    log.error(exception.getMessage());
     return ResponseEntity.status(httpStatus)
         .body(ResponseDTO.builder()
             .data(null)
@@ -43,6 +46,7 @@ public class ExceptionAdvisor {
   }
   private <E extends Exception> ResponseEntity<?> setResponseFromException(HttpStatus httpStatus,
       String errorMsg) {
+    log.error(errorMsg);
     return ResponseEntity.status(httpStatus)
         .body(ResponseDTO.builder()
             .data(null)
