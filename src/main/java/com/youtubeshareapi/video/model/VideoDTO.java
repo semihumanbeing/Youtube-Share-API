@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,14 +28,16 @@ public class VideoDTO {
     private int thumbnailHeight;
     @JsonProperty("isCurrent")
     private boolean isCurrent;
+    private Timestamp playedAt;
 
-    public VideoDTO(Long videoId, Long userId, String url, String title, String artist, Boolean isCurrent, String thumbnailImg, int thumbnailWidth, int thumbnailHeight) {
+    public VideoDTO(Long videoId, Long userId, String url, String title, String artist, Boolean isCurrent, Timestamp playedAt, String thumbnailImg, int thumbnailWidth, int thumbnailHeight) {
         this.videoId = videoId;
         this.userId = userId;
         this.url = url;
         this.title = title;
         this.artist = artist;
         this.isCurrent = isCurrent;
+        this.playedAt = playedAt;
         this.thumbnailImg = thumbnailImg;
         this.thumbnailWidth = thumbnailWidth;
         this.thumbnailHeight = thumbnailHeight;
@@ -48,6 +53,7 @@ public class VideoDTO {
                 .title(video.getTitle())
                 .artist(video.getArtist())
                 .isCurrent(video.isCurrent())
+                .playedAt(video.getPlayedAt())
                 .thumbnailImg(video.getThumbnailImg())
                 .thumbnailWidth(video.getThumbnailWidth())
                 .thumbnailHeight(video.getThumbnailHeight())

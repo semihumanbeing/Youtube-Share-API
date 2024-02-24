@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.youtubeshareapi.video.model.VideoDTO;
 import com.youtubeshareapi.video.model.VideoMessage;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 public interface VideoService {
@@ -11,4 +12,5 @@ public interface VideoService {
     VideoDTO getCurrentVideo(UUID chatroomId) throws JsonProcessingException;
     VideoDTO AddVideo(UUID chatroomId, VideoDTO videoDTO);
     VideoDTO deleteVideo(UUID chatroomId, Long videoId) throws JsonProcessingException;
+
 }

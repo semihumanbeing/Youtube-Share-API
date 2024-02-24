@@ -2,18 +2,14 @@ package com.youtubeshareapi.video.entity;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.youtubeshareapi.user.entity.User;
 import com.youtubeshareapi.video.model.PlaylistDTO;
 import com.youtubeshareapi.video.model.VideoDTO;
 import jakarta.persistence.EntityManager;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.youtubeshareapi.chat.entity.QChatroom.chatroom;
-import static com.youtubeshareapi.user.entity.QUser.user;
 import static com.youtubeshareapi.video.entity.QPlaylist.playlist;
 import static com.youtubeshareapi.video.entity.QVideo.video;
 
@@ -40,7 +36,8 @@ public class PlaylistRepositoryImpl implements PlaylistRepositoryCustom {
                         video.thumbnailImg,
                         video.thumbnailWidth,
                         video.thumbnailHeight,
-                        video.isCurrent
+                        video.isCurrent,
+                        video.playedAt
                 ))
                 .from(video)
                 .leftJoin(video.playlist, playlist)

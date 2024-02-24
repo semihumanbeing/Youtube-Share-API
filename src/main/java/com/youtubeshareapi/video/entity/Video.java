@@ -51,6 +51,9 @@ public class Video {
     @ColumnDefault("0")
     @Setter
     private boolean isCurrent;
+    @Column(name = "played_at")
+    @Setter
+    private Timestamp playedAt;
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
@@ -67,6 +70,7 @@ public class Video {
                 .title(videoDTO.getTitle())
                 .artist(videoDTO.getArtist())
                 .isCurrent(videoDTO.isCurrent())
+                .playedAt(videoDTO.getPlayedAt())
                 .thumbnailImg(videoDTO.getThumbnailImg())
                 .thumbnailWidth(videoDTO.getThumbnailWidth())
                 .thumbnailHeight(videoDTO.getThumbnailHeight())

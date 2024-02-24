@@ -14,6 +14,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -42,8 +43,13 @@ public class VideoEventController {
         // 레디스에서 현재 곡을 rightpop
         VideoDTO nextVideo = videoService.getNextVideo(videoMessage);
         // 웹소켓으로 다음 곡을 전달
-        redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())), Objects.requireNonNullElseGet(nextVideo, VideoDTO::new));
+        redisPublisher.publishVideo(new ChannelTopic(getVideoPrefix(videoMessage.getChatroomId())),
+                                                     Objects.requireNonNullElseGet(nextVideo, VideoDTO::new));
         playlistService.sendPlaylistUpdateSSE(videoMessage.getChatroomId());
+
+        // 비디오를 전달했다면 전달한 시간을 db에 저장한다
+        // 새로운 사람이 들어온다면 시작 시간은 현재 시간에서 전달한 시간을 뺀 만큼에서 시작한다.
+
     }
     private String getVideoPrefix(UUID chatroomId) {
         return String.format("%s%s", VIDEO_PREFIX, chatroomId);

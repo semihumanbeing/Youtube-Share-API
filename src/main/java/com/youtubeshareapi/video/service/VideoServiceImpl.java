@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 @Slf4j
@@ -26,7 +27,6 @@ public class VideoServiceImpl implements VideoService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final VideoRepository videoRepository;
     private static final String VIDEO_PREFIX = "/video/";
-    private static final String PLAYLIST_PREFIX = "/playlist/";
     @Transactional
     @Override
     public VideoDTO AddVideo(UUID chatroomId, VideoDTO videoDTO) {
@@ -73,10 +73,17 @@ public class VideoServiceImpl implements VideoService {
         if (currentVideoJson != null) {
             currentVideo = objectMapper.readValue(currentVideoJson, new TypeReference<VideoDTO>() {});
             currentVideo.setCurrent(true);
+            currentVideo.setPlayedAt(currentVideo.getPlayedAt() == null
+                    ? new Timestamp(System.currentTimeMillis())
+                    : currentVideo.getPlayedAt());
             listOps.set(redisKey, 0, objectMapper.writeValueAsString(currentVideo));
 
-            videoRepository.findById(currentVideo.getVideoId()).ifPresent(video -> video.setCurrent(true));
-
+            videoRepository.findById(currentVideo.getVideoId()).ifPresent(video -> {
+                video.setCurrent(true);
+                video.setPlayedAt(video.getPlayedAt() == null
+                        ? new Timestamp(System.currentTimeMillis())
+                        : video.getPlayedAt());
+            });
         }
 
         return currentVideo;
@@ -107,19 +114,20 @@ public class VideoServiceImpl implements VideoService {
       }
 
       // 현재비디오와 다음 비디오가 전부 있으면 다음 비디오를 현재 비디오로 설정
+      // redis 업데이트
       VideoDTO nextVideo = objectMapper.readValue(nextVideoJson, VideoDTO.class);
-      nextVideo.setCurrent(true);
+      nextVideo.setCurrent(true); // redis에서 현재 비디오 변경
+      nextVideo.setPlayedAt(new Timestamp(System.currentTimeMillis()));
       listOps.set(redisKey, 0, objectMapper.writeValueAsString(nextVideo));
-      updateCurrentVideoOnDatabase(currentVideo.getVideoId(), nextVideo.getVideoId());
-      return nextVideo;
+      // db 업데이트
+      videoRepository.deleteById(currentVideo.getVideoId());
+      Video video = videoRepository.findById(nextVideo.getVideoId()).orElseThrow(RuntimeException::new);
+      video.setPlayedAt(new Timestamp(System.currentTimeMillis()));
+      video.setCurrent(true);
+      Video savedVideo = videoRepository.save(video);
+      return VideoDTO.of(savedVideo);
     }
 
-    @Transactional
-    public void updateCurrentVideoOnDatabase(Long currentVideoId, Long nextVideoId) {
-        videoRepository.deleteById(currentVideoId);
-        Optional<Video> nextVideoOptional = videoRepository.findById(nextVideoId);
-        nextVideoOptional.ifPresent(v -> v.setCurrent(true));
-    }
 
     private String getVideoPrefix(UUID chatroomId) {
         return String.format("%s%s", VIDEO_PREFIX, chatroomId);

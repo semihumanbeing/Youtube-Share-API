@@ -28,6 +28,8 @@ public class QVideo extends EntityPathBase<Video> {
 
     public final BooleanPath isCurrent = createBoolean("isCurrent");
 
+    public final DateTimePath<java.sql.Timestamp> playedAt = createDateTime("playedAt", java.sql.Timestamp.class);
+
     public final QPlaylist playlist;
 
     public final NumberPath<Integer> thumbnailHeight = createNumber("thumbnailHeight", Integer.class);
