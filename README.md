@@ -24,12 +24,14 @@
     - [x]  delete
     - [x]  getFromUser
     - [x]  getAll (page)
-- [ ]  Playlist
+- [x]  Playlist
     - [X]  create
-- [ ] Video
-    - [ ]  addToPlaylist
-    - [ ]  getCurrent (ws)
-    - [ ]  getNext (ws)
-    - [ ]  deleteOne
-    - [ ]  getByChatroomId
+    - [x]  subscribe (SSE)
+    - [x]  sync (SSE)
+- [x] Video
+    - [x]  addToPlaylist
+    - [x]  getCurrent (ws)
+    - [x]  getNext (ws)
+    - [x]  deleteOne
+    - [x]  getByChatroomId
      
